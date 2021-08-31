@@ -1,7 +1,8 @@
-import { makeStyles, Box, Typography } from "@material-ui/core";
+import { makeStyles, Box, Typography, ButtonBase } from "@material-ui/core";
 import Container from "src/components/Container";
 import newFormImage from "src/assets/images/new-form-icon.png";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { nanoid } from "nanoid";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -10,8 +11,7 @@ const useStyles = makeStyles((theme) => ({
   newFormBox: {
     marginTop: theme.spacing(2),
   },
-  newFormLink: {
-    display: "block",
+  newFormImageButton: {
     backgroundColor: theme.palette.background.default,
     borderRadius: theme.spacing(1),
     overflow: "hidden",
@@ -30,20 +30,29 @@ const useStyles = makeStyles((theme) => ({
 
 const CreateForms = () => {
   const classes = useStyles();
+  const history = useHistory();
+
+  const openNewForm = () => {
+    const generatedId = nanoid();
+    history.push(`/${generatedId}`);
+  };
 
   return (
     <Box className={classes.root}>
       <Container>
         <Typography variant="h5">Tworzenie nowego formularza</Typography>
         <Box className={classes.newFormBox}>
-          <Link to="/form" className={classes.newFormLink}>
+          <ButtonBase
+            className={classes.newFormImageButton}
+            onClick={openNewForm}
+          >
             <img
               src={newFormImage}
               className={classes.newFormImage}
               alt="Grafika z plusem służąca do utworzenia nowego formularza"
               draggable="false"
             />
-          </Link>
+          </ButtonBase>
           <Typography>Pusty</Typography>
         </Box>
       </Container>

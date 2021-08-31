@@ -1,14 +1,13 @@
+import { Layout } from "src/components";
 import CreateForms from "./CreateForms";
-import Navbar from "./Navbar";
 import RecentForms from "./RecentForms";
 
 const HomeView = () => {
   return (
-    <div>
-      <Navbar />
+    <Layout>
       <CreateForms />
       <RecentForms />
-    </div>
+    </Layout>
   );
 };
 

@@ -5,13 +5,13 @@ import {
   Toolbar,
   IconButton,
   Typography,
-  Button,
   Avatar,
 } from "@material-ui/core";
 import formLogo from "src/assets/images/form-logo.png";
 import MenuIcon from "@material-ui/icons/Menu";
 import { Link } from "react-router-dom";
 import TuneIcon from "@material-ui/icons/Tune";
+import { ReactNode } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -46,7 +46,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Navbar = () => {
+export type Props = {
+  children: ReactNode;
+};
+
+const Layout = ({ children }: Props) => {
   const classes = useStyles();
 
   return (
@@ -75,8 +79,9 @@ const Navbar = () => {
           <Avatar className={classes.avatar} />
         </Toolbar>
       </AppBar>
+      {children}
     </Box>
   );
 };
 
-export default Navbar;
+export default Layout;
