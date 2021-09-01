@@ -1,4 +1,5 @@
 import { makeStyles, Box, Tabs, Tab } from "@material-ui/core";
+import { Link, useParams } from "react-router-dom";
 import { TabValue } from "../types";
 
 const useStyles = makeStyles((theme) => ({
@@ -16,8 +17,9 @@ export type Props = {
   changeValue: (value: TabValue) => void;
 };
 
-const QuestionsAnswersTabs = ({ value, changeValue }: Props) => {
+const Navbar = ({ value, changeValue }: Props) => {
   const classes = useStyles();
+  const { id } = useParams<{ id: string }>();
 
   return (
     <Box className={classes.root}>
@@ -27,11 +29,23 @@ const QuestionsAnswersTabs = ({ value, changeValue }: Props) => {
         indicatorColor="primary"
         centered
       >
-        <Tab label="Pytania" value="questions" className={classes.tab} />
-        <Tab label="Odpowiedzi" value="answers" className={classes.tab} />
+        <Tab
+          label="Pytania"
+          value="questions"
+          className={classes.tab}
+          component={Link}
+          to={`/${id}`}
+        />
+        <Tab
+          label="Odpowiedzi"
+          value="answers"
+          className={classes.tab}
+          component={Link}
+          to={`/${id}/answers`}
+        />
       </Tabs>
     </Box>
   );
 };
 
-export default QuestionsAnswersTabs;
+export default Navbar;

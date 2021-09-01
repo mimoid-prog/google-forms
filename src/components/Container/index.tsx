@@ -7,14 +7,19 @@ const useStyles = makeStyles((theme) => ({
 
 export type Props = {
   children: ReactNode;
+  maxWidth?: "xs" | "sm" | "md" | "lg" | "xl";
   verticalPadding?: number;
 };
 
-const Container = ({ children, verticalPadding = 3 }: Props) => {
+const Container = ({
+  children,
+  maxWidth = "lg",
+  verticalPadding = 3,
+}: Props) => {
   const classes = useStyles();
 
   return (
-    <MuiContainer>
+    <MuiContainer maxWidth={maxWidth}>
       <Box py={verticalPadding}>{children}</Box>
     </MuiContainer>
   );

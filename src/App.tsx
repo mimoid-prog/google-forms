@@ -4,7 +4,7 @@ import HomeView from "./views/HomeView";
 import { ThemeProvider } from "@material-ui/core";
 import { theme } from "./theme";
 import FormProvider from "./contexts/FormContext";
-import CreateFormView from "./views/CreateFormView";
+import FormEditView from "./views/FormEditView";
 
 const App = () => {
   return (
@@ -18,11 +18,8 @@ const App = () => {
                 <Route exact path="/">
                   <HomeView />
                 </Route>
-                <Route path="/:id">
-                  <CreateFormView />
-                </Route>
-                <Route path="/users">
-                  <p>users</p>
+                <Route path="/form-edit">
+                  <FormEditView />
                 </Route>
               </Switch>
             </Router>
