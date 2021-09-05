@@ -5,6 +5,7 @@ import { ThemeProvider } from "@material-ui/core";
 import { theme } from "./theme";
 import FormProvider from "./contexts/FormContext";
 import FormEditView from "./views/FormEditView";
+import FormCompletionView from "./views/FormCompletionView";
 
 const App = () => {
   return (
@@ -20,6 +21,9 @@ const App = () => {
                 </Route>
                 <Route path="/form-edit">
                   <FormEditView />
+                </Route>
+                <Route path="/form/:id/completion">
+                  <FormCompletionView />
                 </Route>
               </Switch>
             </Router>

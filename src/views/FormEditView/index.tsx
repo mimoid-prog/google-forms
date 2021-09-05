@@ -5,11 +5,12 @@ import { Container, Layout } from "src/components";
 import Navbar from "./Navbar";
 import { TabValue } from "./types";
 import FormView from "./views/FormView";
+import FormEditProvider from "src/contexts/FormEditContext";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
   content: {
     backgroundColor: "#f1f3f4",
+    minHeight: "100vh",
   },
 }));
 
@@ -31,7 +32,9 @@ const FormEditView = () => {
         <Container maxWidth="md">
           <Switch>
             <Route exact path={path}>
-              <FormView />
+              <FormEditProvider>
+                <FormView />
+              </FormEditProvider>
             </Route>
             <Route exact path={`${path}/answers`}>
               <p>Answers</p>

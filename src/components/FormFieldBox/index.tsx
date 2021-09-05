@@ -1,4 +1,5 @@
 import { makeStyles, Paper, Box } from "@material-ui/core";
+import clsx from "clsx";
 import { ReactNode } from "react";
 
 const useStyles = makeStyles((theme) => ({
@@ -7,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     boxSizing: "border-box",
     overflow: "hidden",
+    borderRadius: theme.spacing(1),
   },
   headerLine: {
     position: "absolute",
@@ -26,19 +28,28 @@ const useStyles = makeStyles((theme) => ({
     bottom: 0,
     left: 0,
   },
+  error: {
+    border: `1px solid ${theme.palette.error.main}`,
+  },
 }));
 
 export type Props = {
   children: ReactNode;
   header?: boolean;
   active?: boolean;
+  error?: boolean;
 };
 
-const FormFieldBox = ({ children, header = false, active = false }: Props) => {
+const FormFieldBox = ({
+  children,
+  header = false,
+  active = false,
+  error = false,
+}: Props) => {
   const classes = useStyles();
 
   return (
-    <Paper className={classes.root}>
+    <Paper className={clsx(classes.root, error && classes.error)}>
       {header && <Box className={classes.headerLine} />}
       {active && <Box className={classes.activeLine} />}
       {children}

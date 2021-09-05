@@ -3,6 +3,9 @@ import { ReactNode } from "react";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
+  customMaxWidthSm: {
+    maxWidth: 700,
+  },
 }));
 
 export type Props = {
@@ -19,7 +22,10 @@ const Container = ({
   const classes = useStyles();
 
   return (
-    <MuiContainer maxWidth={maxWidth}>
+    <MuiContainer
+      maxWidth={maxWidth}
+      classes={{ maxWidthSm: classes.customMaxWidthSm }}
+    >
       <Box py={verticalPadding}>{children}</Box>
     </MuiContainer>
   );

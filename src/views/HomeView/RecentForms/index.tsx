@@ -6,7 +6,7 @@ import {
   CardContent,
 } from "@material-ui/core";
 import { observer } from "mobx-react";
-import { useState } from "react";
+import { useEffect } from "react";
 import Container from "src/components/Container";
 import useFormStore from "src/hooks/useFormStore";
 import FormItem from "./FormItem";
@@ -40,45 +40,47 @@ const useStyles = makeStyles((theme) => ({
 
 const RecentForms = observer(() => {
   const classes = useStyles();
-  const [value, setValue] = useState("");
-  const { forms, addForm } = useFormStore();
+  const { forms, fetchForms, isInitiallyFetched, isFetching } = useFormStore();
+  console.log(isFetching);
+
+  useEffect(() => {
+    if (isInitiallyFetched === false) {
+      fetchForms();
+    }
+  }, []);
 
   return (
     <Box className={classes.root}>
       <Container>
         <Typography variant="h5">Ostatnie formularze</Typography>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-        <button
-          onClick={() => {
-            addForm(value);
-            setValue("");
-          }}
-        >
-          Click
-        </button>
-        {forms.length === 0 ? (
-          <Box className={classes.noFormsBox}>
-            <Card>
-              <CardContent>
-                <Typography variant="h4">
-                  Jeszcze nie masz żadnych formularzy
-                </Typography>
-                <Typography variant="body1" className={classes.noFormsSubtitle}>
-                  Aby utworzyć nowy formularz, kliknij +.
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
+        {isFetching ? (
+          <p>Trwa pobieranie...</p>
         ) : (
-          <Box className={classes.formsList}>
-            {forms.map((form) => (
-              <FormItem key={form.title} form={form} />
-            ))}
-          </Box>
+          <>
+            {forms.length === 0 ? (
+              <Box className={classes.noFormsBox}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h4">
+                      Jeszcze nie masz żadnych formularzy
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      className={classes.noFormsSubtitle}
+                    >
+                      Aby utworzyć nowy formularz, kliknij +.
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Box>
+            ) : (
+              <Box className={classes.formsList}>
+                {forms.map((form) => (
+                  <FormItem key={form.title} form={form} />
+                ))}
+              </Box>
+            )}
+          </>
         )}
       </Container>
     </Box>

@@ -1,9 +1,9 @@
 import { makeStyles, Box, Typography, IconButton } from "@material-ui/core";
-import { Form } from "src/stores/formStore/types";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import SpeakerNotesIcon from "@material-ui/icons/SpeakerNotes";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import shorten from "src/utils/shorten";
+import { Form } from "src/types/Form";
 
 const useStyles = makeStyles((theme) => ({
   root: {
