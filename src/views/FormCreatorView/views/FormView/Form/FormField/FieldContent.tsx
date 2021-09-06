@@ -14,11 +14,13 @@ import {
 } from "@material-ui/core";
 import {
   FormField,
-  MultipleChoiceType,
-  SingleChoiceType,
+  MultipleChoiceConfig,
+  SingleChoiceConfig,
 } from "src/types/FormField";
 import CloseIcon from "@material-ui/icons/Close";
 import useFormEdit from "src/hooks/useFormEdit";
+import formCreatorStore from "src/stores/formCreatorStore";
+import { observer } from "mobx-react-lite";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -64,25 +66,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export type Props = {
-  formField: FormField;
+  field: FormField;
 };
 
-const FieldContent = ({ formField }: Props) => {
+const FieldContent = observer(({ field }: Props) => {
   const classes = useStyles();
 
+  const { changeMinScale, changeMinText, changeMaxScale, changeMaxText } =
+    useFormEdit();
+
   const {
+    toggleSchemaProperty,
     changeFieldOption,
     addFieldOption,
     deleteFieldOption,
-    toggleAllowOtherOption,
-    changeMinScale,
-    changeMinText,
-    changeMaxScale,
-    changeMaxText,
-  } = useFormEdit();
+  } = formCreatorStore;
 
   const handleOptionChange = (value: string, optionId: string) => {
-    changeFieldOption({ id: formField.id, optionId, value });
+    changeFieldOption({ fieldId: field.id, optionId, value });
   };
 
   const handleMinScaleChange = (
@@ -93,7 +94,7 @@ const FieldContent = ({ formField }: Props) => {
   ) => {
     const value = e.target.value as string;
 
-    changeMinScale({ formFieldId: formField.id, minScale: value });
+    changeMinScale({ fieldId: field.id, minScale: value });
   };
 
   const handleMaxScaleChange = (
@@ -104,10 +105,10 @@ const FieldContent = ({ formField }: Props) => {
   ) => {
     const value = e.target.value as string;
 
-    changeMaxScale({ formFieldId: formField.id, maxScale: value });
+    changeMaxScale({ fieldId: field.id, maxScale: value });
   };
 
-  switch (formField.type.value) {
+  switch (field.config.value) {
     case "shortAnswer":
       return (
         <TextField
@@ -127,30 +128,35 @@ const FieldContent = ({ formField }: Props) => {
     case "singleChoice": {
       return (
         <Box>
-          {formField.type.options.map((option) => (
-            <Box key={option.id} className={classes.optionBox}>
-              <Radio disabled />
-              <TextField
-                value={option.label}
-                onChange={(e) => handleOptionChange(e.target.value, option.id)}
-                className={classes.optionTextField}
-              />
-              <IconButton
-                disabled={
-                  (formField.type as SingleChoiceType).options.length === 1
-                }
-                onClick={() =>
-                  deleteFieldOption({
-                    formFieldId: formField.id,
-                    optionId: option.id,
-                  })
-                }
-              >
-                <CloseIcon />
-              </IconButton>
-            </Box>
-          ))}
-          {formField.type.allowOtherOption && (
+          {field.config.options.map((option) => {
+            console.log(option.label);
+            return (
+              <Box key={option.id} className={classes.optionBox}>
+                <Radio disabled />
+                <TextField
+                  value={option.label}
+                  onChange={(e) =>
+                    handleOptionChange(e.target.value, option.id)
+                  }
+                  className={classes.optionTextField}
+                />
+                <IconButton
+                  disabled={
+                    (field.config as SingleChoiceConfig).options.length === 1
+                  }
+                  onClick={() =>
+                    deleteFieldOption({
+                      fieldId: field.id,
+                      optionId: option.id,
+                    })
+                  }
+                >
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+            );
+          })}
+          {field.schema.allowOtherOption && (
             <Box className={classes.optionBox}>
               <Radio disabled />
               <TextField
@@ -158,7 +164,11 @@ const FieldContent = ({ formField }: Props) => {
                 className={classes.optionTextField}
                 disabled
               />
-              <IconButton onClick={() => toggleAllowOtherOption(formField.id)}>
+              <IconButton
+                onClick={() =>
+                  toggleSchemaProperty(field.id, "allowOtherOption")
+                }
+              >
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -169,17 +179,19 @@ const FieldContent = ({ formField }: Props) => {
               <Button
                 color="secondary"
                 className={classes.addOptionBtn}
-                onClick={() => addFieldOption(formField.id)}
+                onClick={() => addFieldOption(field.id)}
               >
                 Dodaj opcję
               </Button>
-              {!formField.type.allowOtherOption && (
+              {!field.schema.allowOtherOption && (
                 <>
                   <Typography>lub</Typography>
                   <Button
                     color="primary"
                     className={classes.addOptionBtn}
-                    onClick={() => toggleAllowOtherOption(formField.id)}
+                    onClick={() =>
+                      toggleSchemaProperty(field.id, "allowOtherOption")
+                    }
                   >
                     dodaj opcję &quot;Inne&quot;
                   </Button>
@@ -193,7 +205,7 @@ const FieldContent = ({ formField }: Props) => {
     case "multipleChoice": {
       return (
         <Box>
-          {formField.type.options.map((option) => (
+          {field.config.options.map((option) => (
             <Box key={option.id} className={classes.optionBox}>
               <Checkbox disabled />
               <TextField
@@ -203,11 +215,11 @@ const FieldContent = ({ formField }: Props) => {
               />
               <IconButton
                 disabled={
-                  (formField.type as MultipleChoiceType).options.length === 1
+                  (field.config as MultipleChoiceConfig).options.length === 1
                 }
                 onClick={() =>
                   deleteFieldOption({
-                    formFieldId: formField.id,
+                    fieldId: field.id,
                     optionId: option.id,
                   })
                 }
@@ -216,7 +228,7 @@ const FieldContent = ({ formField }: Props) => {
               </IconButton>
             </Box>
           ))}
-          {formField.type.allowOtherOption && (
+          {field.schema.allowOtherOption && (
             <Box className={classes.optionBox}>
               <Checkbox disabled />
               <TextField
@@ -224,7 +236,11 @@ const FieldContent = ({ formField }: Props) => {
                 className={classes.optionTextField}
                 disabled
               />
-              <IconButton onClick={() => toggleAllowOtherOption(formField.id)}>
+              <IconButton
+                onClick={() =>
+                  toggleSchemaProperty(field.id, "allowOtherOption")
+                }
+              >
                 <CloseIcon />
               </IconButton>
             </Box>
@@ -235,17 +251,19 @@ const FieldContent = ({ formField }: Props) => {
               <Button
                 color="secondary"
                 className={classes.addOptionBtn}
-                onClick={() => addFieldOption(formField.id)}
+                onClick={() => addFieldOption(field.id)}
               >
                 Dodaj opcję
               </Button>
-              {!formField.type.allowOtherOption && (
+              {!field.schema.allowOtherOption && (
                 <>
                   <Typography>lub</Typography>
                   <Button
                     color="primary"
                     className={classes.addOptionBtn}
-                    onClick={() => toggleAllowOtherOption(formField.id)}
+                    onClick={() =>
+                      toggleSchemaProperty(field.id, "allowOtherOption")
+                    }
                   >
                     dodaj opcję &quot;Inne&quot;
                   </Button>
@@ -265,7 +283,7 @@ const FieldContent = ({ formField }: Props) => {
                 <InputLabel id="linearScaleMin">Od</InputLabel>
                 <Select
                   labelId="linearScaleMin"
-                  value={formField.type.minScale}
+                  value={field.config.minScale}
                   onChange={handleMinScaleChange}
                   label="Od"
                 >
@@ -280,7 +298,7 @@ const FieldContent = ({ formField }: Props) => {
                 <InputLabel id="linearScaleMin">Od</InputLabel>
                 <Select
                   labelId="linearScaleMin"
-                  value={formField.type.maxScale}
+                  value={field.config.maxScale}
                   onChange={handleMaxScaleChange}
                   label="Od"
                 >
@@ -298,12 +316,12 @@ const FieldContent = ({ formField }: Props) => {
             </Box>
           </Box>
           <Box className={classes.scaleTextBox}>
-            <Box>{formField.type.minScale}</Box>
+            <Box>{field.config.minScale}</Box>
             <TextField
-              value={formField.type.minText}
+              value={field.config.minText}
               onChange={(e) =>
                 changeMinText({
-                  formFieldId: formField.id,
+                  fieldId: field.id,
                   minText: e.target.value,
                 })
               }
@@ -312,12 +330,12 @@ const FieldContent = ({ formField }: Props) => {
             />
           </Box>
           <Box className={classes.optionBox}>
-            <Box>{formField.type.maxScale}</Box>
+            <Box>{field.config.maxScale}</Box>
             <TextField
-              value={formField.type.maxText}
+              value={field.config.maxText}
               onChange={(e) =>
                 changeMaxText({
-                  formFieldId: formField.id,
+                  fieldId: field.id,
                   maxText: e.target.value,
                 })
               }
@@ -330,6 +348,6 @@ const FieldContent = ({ formField }: Props) => {
     default:
       return null;
   }
-};
+});
 
 export default FieldContent;

@@ -20,13 +20,14 @@ import SubjectOutlinedIcon from "@material-ui/icons/SubjectOutlined";
 import RadioButtonCheckedOutlinedIcon from "@material-ui/icons/RadioButtonCheckedOutlined";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
 import LinearScaleIcon from "@material-ui/icons/LinearScale";
-import { FormField, FormFieldTypeValue } from "src/types/FormField";
+import { FormField, FormFieldConfigValue } from "src/types/FormField";
 import { ReactNode } from "react";
 import FilterNoneIcon from "@material-ui/icons/FilterNone";
 import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
 import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
 import FieldContent from "./FieldContent";
-import useFormEdit from "src/hooks/useFormEdit";
+import { observer } from "mobx-react-lite";
+import formCreatorStore from "src/stores/formCreatorStore";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -54,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type TypeItem = {
-  value: FormFieldTypeValue;
+  value: FormFieldConfigValue;
   label: string;
   icon: ReactNode;
 };
@@ -88,45 +89,26 @@ const typeItems: TypeItem[] = [
 ];
 
 export type Props = {
-  formField: FormField;
-  // changeFieldQuestion: (data: { id: string; question: string }) => void;
-  // changeFieldType: (data: { id: string; typeValue: string }) => void;
+  field: FormField;
 };
 
-const FormFieldComp = ({ formField }: Props) => {
+const Field = observer(({ field }: Props) => {
   const classes = useStyles();
 
-  const { changeFieldQuestion, changeFieldType, changeFieldRequired } =
-    useFormEdit();
-
-  const handleQuestionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    changeFieldQuestion({ id: formField.id, question: e.target.value });
-  };
-
-  const handleTypeChange = (
-    e: React.ChangeEvent<{
-      name?: string | undefined;
-      value: unknown;
-    }>
-  ) => {
-    const newValue = e.target.value as FormFieldTypeValue;
-
-    changeFieldType({ id: formField.id, typeValue: newValue });
-  };
-
-  const handleRequiredChange = () => {
-    changeFieldRequired(formField.id);
-  };
+  const {
+    changeFieldQuestion,
+    changeFieldConfig,
+    toggleSchemaProperty,
+    deleteField,
+  } = formCreatorStore;
 
   return (
     <Box className={classes.root}>
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} md={6}>
           <TextField
-            value={formField.question}
-            onChange={handleQuestionChange}
+            value={field.question}
+            onChange={(e) => changeFieldQuestion(field.id, e.target.value)}
             placeholder="Pytanie"
             variant="filled"
             label=""
@@ -142,8 +124,13 @@ const FormFieldComp = ({ formField }: Props) => {
           >
             <InputLabel id="type">Typ odpowiedzi</InputLabel>
             <Select
-              value={formField.type.value}
-              onChange={handleTypeChange}
+              value={field.config.value}
+              onChange={(e) =>
+                changeFieldConfig(
+                  field.id,
+                  e.target.value as FormFieldConfigValue
+                )
+              }
               labelId="type"
               label="Typ odpowiedzi"
             >
@@ -160,7 +147,7 @@ const FormFieldComp = ({ formField }: Props) => {
         </Grid>
       </Grid>
       <Box className={classes.fieldContentBox}>
-        <FieldContent formField={formField} />
+        <FieldContent field={field} />
       </Box>
       <Box className={classes.bottomBar}>
         <Divider className={classes.bottomBarDivider} />
@@ -168,15 +155,15 @@ const FormFieldComp = ({ formField }: Props) => {
           <IconButton disabled>
             <FilterNoneIcon />
           </IconButton>
-          <IconButton>
+          <IconButton onClick={() => deleteField(field.id)}>
             <DeleteOutlinedIcon />
           </IconButton>
           <Divider orientation="vertical" flexItem />
           <FormControlLabel
             control={
               <Switch
-                checked={formField.required}
-                onChange={handleRequiredChange}
+                checked={field.schema.required}
+                onChange={() => toggleSchemaProperty(field.id, "required")}
                 name="required"
               />
             }
@@ -190,6 +177,6 @@ const FormFieldComp = ({ formField }: Props) => {
       </Box>
     </Box>
   );
-};
+});
 
-export default FormFieldComp;
+export default Field;

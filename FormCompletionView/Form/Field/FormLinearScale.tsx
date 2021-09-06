@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { FormErrorMessage } from "src/components";
-import { LinearScaleTypeWithState } from "src/types/FormField";
+import { LinearScaleConfigWithState } from "src/types/FormField";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export type Props = {
-  config: LinearScaleTypeWithState;
+  config: LinearScaleConfigWithState;
   onChange: (value: string) => void;
 };
 

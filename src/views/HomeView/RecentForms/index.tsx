@@ -5,7 +5,7 @@ import {
   Card,
   CardContent,
 } from "@material-ui/core";
-import { observer } from "mobx-react";
+import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import Container from "src/components/Container";
 import useFormStore from "src/hooks/useFormStore";

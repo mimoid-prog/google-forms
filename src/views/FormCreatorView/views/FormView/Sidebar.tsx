@@ -7,6 +7,8 @@ import MovieCreationOutlinedIcon from "@material-ui/icons/MovieCreationOutlined"
 import ImportExportOutlinedIcon from "@material-ui/icons/ImportExportOutlined";
 import ViewAgendaOutlinedIcon from "@material-ui/icons/ViewAgendaOutlined";
 import useFormEdit from "src/hooks/useFormEdit";
+import formCreatorStore from "src/stores/formCreatorStore";
+import { observer } from "mobx-react-lite";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -45,16 +47,16 @@ type MenuItem = {
   callback?: () => void;
 };
 
-const Sidebar = () => {
+const Sidebar = observer(() => {
   const classes = useStyles();
 
-  const { addFormField } = useFormEdit();
+  const { addField } = formCreatorStore;
 
   const items: MenuItem[] = [
     {
       icon: <AddCircleOutlineIcon />,
       title: "Dodaj pytanie",
-      callback: addFormField,
+      callback: addField,
     },
     {
       icon: <ImportExportOutlinedIcon />,
@@ -95,6 +97,6 @@ const Sidebar = () => {
       </Paper>
     </Box>
   );
-};
+});
 
 export default Sidebar;

@@ -4,8 +4,8 @@ import HomeView from "./views/HomeView";
 import { ThemeProvider } from "@material-ui/core";
 import { theme } from "./theme";
 import FormProvider from "./contexts/FormContext";
-import FormEditView from "./views/FormEditView";
-import FormCompletionView from "./views/FormCompletionView";
+import FormCreatorView from "./views/FormCreatorView";
+// import FormCompletionView from "./views/FormCompletionView";
 
 const App = () => {
   return (
@@ -20,11 +20,11 @@ const App = () => {
                   <HomeView />
                 </Route>
                 <Route path="/form-edit">
-                  <FormEditView />
+                  <FormCreatorView />
                 </Route>
-                <Route path="/form/:id/completion">
+                {/* <Route path="/form/:id/completion">
                   <FormCompletionView />
-                </Route>
+                </Route> */}
               </Switch>
             </Router>
           </>

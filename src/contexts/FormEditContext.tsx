@@ -3,8 +3,9 @@ import { createContext, ReactNode, useState } from "react";
 import useFormStore from "src/hooks/useFormStore";
 import {
   FormField,
-  FormFieldType,
-  FormFieldTypeValue,
+  FormFieldConfig,
+  FormFieldConfigValue,
+  Schema,
 } from "src/types/FormField";
 
 type Store = {
@@ -13,7 +14,7 @@ type Store = {
   values: {
     title: string;
     description: string;
-    formFields: FormField[];
+    fields: FormField[];
   };
   submitForm: () => void;
   changeTitle: React.Dispatch<React.SetStateAction<string>>;
@@ -31,9 +32,9 @@ type Store = {
     typeValue,
   }: {
     id: string;
-    typeValue: FormFieldTypeValue;
+    typeValue: FormFieldConfigValue;
   }) => void;
-  changeFieldRequired: (id: string) => void;
+  toggleSchemaProperty: (fieldId: string, schemaProperty: keyof Schema) => void;
   changeFieldOption: ({
     id,
     optionId,
@@ -43,41 +44,40 @@ type Store = {
     optionId: string;
     value: string;
   }) => void;
-  addFieldOption: (formFieldId: string) => void;
+  addFieldOption: (fieldId: string) => void;
   deleteFieldOption: ({
-    formFieldId,
+    fieldId,
     optionId,
   }: {
-    formFieldId: string;
+    fieldId: string;
     optionId: string;
   }) => void;
-  toggleAllowOtherOption: (formFieldId: string) => void;
   changeMinScale: ({
-    formFieldId,
+    fieldId,
     minScale,
   }: {
-    formFieldId: string;
+    fieldId: string;
     minScale: string;
   }) => void;
   changeMaxScale: ({
-    formFieldId,
+    fieldId,
     maxScale,
   }: {
-    formFieldId: string;
+    fieldId: string;
     maxScale: string;
   }) => void;
   changeMinText: ({
-    formFieldId,
+    fieldId,
     minText,
   }: {
-    formFieldId: string;
+    fieldId: string;
     minText: string;
   }) => void;
   changeMaxText: ({
-    formFieldId,
+    fieldId,
     maxText,
   }: {
-    formFieldId: string;
+    fieldId: string;
     maxText: string;
   }) => void;
 };
@@ -88,7 +88,7 @@ export type Props = {
   children: ReactNode;
 };
 
-const defaultFieldType: FormFieldType = {
+const defaultFieldConfig: FormFieldConfig = {
   value: "singleChoice",
   options: [
     {
@@ -96,7 +96,6 @@ const defaultFieldType: FormFieldType = {
       label: "Opcja 1",
     },
   ],
-  allowOtherOption: false,
 };
 
 const FormEditProvider = ({ children }: Props) => {
@@ -105,7 +104,7 @@ const FormEditProvider = ({ children }: Props) => {
 
   const [title, setTitle] = useState("Formularz bez nazwy");
   const [description, setDescription] = useState("");
-  const [formFields, setFormFields] = useState<FormField[]>([]);
+  const [fields, setFields] = useState<FormField[]>([]);
 
   const { saveForm } = useFormStore();
 
@@ -113,20 +112,23 @@ const FormEditProvider = ({ children }: Props) => {
     saveForm(undefined, {
       title,
       description,
-      fields: formFields,
+      fields: fields,
     });
   };
 
   const addFormField = () => {
     const newFormField: FormField = {
       id: nanoid(),
-      order: formFields.length,
+      order: fields.length,
       question: "",
-      required: false,
-      type: defaultFieldType,
+      config: defaultFieldConfig,
+      schema: {
+        required: false,
+        allowOtherOption: false,
+      },
     };
 
-    setFormFields([...formFields, newFormField]);
+    setFields([...fields, newFormField]);
   };
 
   const changeFieldQuestion = ({
@@ -136,20 +138,20 @@ const FormEditProvider = ({ children }: Props) => {
     id: string;
     question: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
-      if (formField.id === id) {
+    const newFormFields = fields.map((field) => {
+      if (field.id === id) {
         const newFormField = {
-          ...formField,
+          ...field,
           question,
         };
 
         return newFormField;
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const changeFieldType = ({
@@ -157,13 +159,13 @@ const FormEditProvider = ({ children }: Props) => {
     typeValue,
   }: {
     id: string;
-    typeValue: FormFieldTypeValue;
+    typeValue: FormFieldConfigValue;
   }) => {
-    const newFormFields = formFields.map((formField) => {
-      if (formField.id === id) {
+    const newFormFields = fields.map((field) => {
+      if (field.id === id) {
         if (typeValue === "shortAnswer" || typeValue === "longAnswer") {
           const newFormField = {
-            ...formField,
+            ...field,
             type: {
               value: typeValue,
             },
@@ -175,9 +177,9 @@ const FormEditProvider = ({ children }: Props) => {
           typeValue === "multipleChoice"
         ) {
           const newFormField = {
-            ...formField,
+            ...field,
             type: {
-              ...defaultFieldType,
+              ...defaultFieldConfig,
               value: typeValue,
             },
           };
@@ -185,7 +187,7 @@ const FormEditProvider = ({ children }: Props) => {
           return newFormField;
         } else {
           const newFormField = {
-            ...formField,
+            ...field,
             type: {
               value: typeValue,
               minScale: "1",
@@ -198,28 +200,34 @@ const FormEditProvider = ({ children }: Props) => {
           return newFormField;
         }
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
-  const changeFieldRequired = (id: string) => {
-    const newFormFields = formFields.map((formField) => {
-      if (formField.id === id) {
-        const newFormField = {
-          ...formField,
-          required: !formField.required,
+  const toggleSchemaProperty = (
+    fieldId: string,
+    schemaProperty: keyof Schema
+  ) => {
+    const newFields = fields.map((field) => {
+      if (field.id === fieldId) {
+        const newField = {
+          ...field,
+          schema: {
+            ...field.schema,
+            [schemaProperty]: !field.schema[schemaProperty],
+          },
         };
 
-        return newFormField;
+        return newField;
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFields);
   };
 
   const changeFieldOption = ({
@@ -231,13 +239,13 @@ const FormEditProvider = ({ children }: Props) => {
     optionId: string;
     value: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
+    const newFormFields = fields.map((field) => {
       if (
-        formField.id === id &&
-        (formField.type.value === "singleChoice" ||
-          formField.type.value === "multipleChoice")
+        field.id === id &&
+        (field.config.value === "singleChoice" ||
+          field.config.value === "multipleChoice")
       ) {
-        const newFormFieldOptions = formField.type.options.map((option) =>
+        const newFormFieldOptions = field.config.options.map((option) =>
           option.id === optionId
             ? {
                 id: optionId,
@@ -247,207 +255,173 @@ const FormEditProvider = ({ children }: Props) => {
         );
 
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
+            ...field.config,
             options: newFormFieldOptions,
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
-  const addFieldOption = (formFieldId: string) => {
-    const newFormFields = formFields.map((formField) => {
+  const addFieldOption = (fieldId: string) => {
+    const newFormFields = fields.map((field) => {
       if (
-        formField.id === formFieldId &&
-        (formField.type.value === "singleChoice" ||
-          formField.type.value === "multipleChoice")
+        field.id === fieldId &&
+        (field.config.value === "singleChoice" ||
+          field.config.value === "multipleChoice")
       ) {
         const newOption = {
           id: nanoid(),
-          label: `Opcja ${formField.type.options.length + 1}`,
+          label: `Opcja ${field.config.options.length + 1}`,
         };
 
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
-            options: [...formField.type.options, newOption],
+            ...field.config,
+            options: [...field.config.options, newOption],
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const deleteFieldOption = ({
-    formFieldId,
+    fieldId,
     optionId,
   }: {
-    formFieldId: string;
+    fieldId: string;
     optionId: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
+    const newFormFields = fields.map((field) => {
       if (
-        formField.id === formFieldId &&
-        (formField.type.value === "singleChoice" ||
-          formField.type.value === "multipleChoice")
+        field.id === fieldId &&
+        (field.config.value === "singleChoice" ||
+          field.config.value === "multipleChoice")
       ) {
-        const newOptions = formField.type.options.filter(
+        const newOptions = field.config.options.filter(
           (option) => option.id !== optionId
         );
 
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
+            ...field.config,
             options: newOptions,
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
-  };
-
-  const toggleAllowOtherOption = (formFieldId: string) => {
-    const newFormFields = formFields.map((formField) => {
-      if (
-        formField.id === formFieldId &&
-        (formField.type.value === "singleChoice" ||
-          formField.type.value === "multipleChoice")
-      ) {
-        return {
-          ...formField,
-          type: {
-            ...formField.type,
-            allowOtherOption: !formField.type.allowOtherOption,
-          },
-        };
-      } else {
-        return formField;
-      }
-    });
-
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const changeMinScale = ({
-    formFieldId,
+    fieldId,
     minScale,
   }: {
-    formFieldId: string;
+    fieldId: string;
     minScale: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
-      if (
-        formField.id === formFieldId &&
-        formField.type.value === "linearScale"
-      ) {
+    const newFormFields = fields.map((field) => {
+      if (field.id === fieldId && field.config.value === "linearScale") {
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
+            ...field.config,
             minScale,
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const changeMaxScale = ({
-    formFieldId,
+    fieldId,
     maxScale,
   }: {
-    formFieldId: string;
+    fieldId: string;
     maxScale: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
-      if (
-        formField.id === formFieldId &&
-        formField.type.value === "linearScale"
-      ) {
+    const newFormFields = fields.map((field) => {
+      if (field.id === fieldId && field.config.value === "linearScale") {
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
+            ...field.config,
             maxScale,
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const changeMinText = ({
-    formFieldId,
+    fieldId,
     minText,
   }: {
-    formFieldId: string;
+    fieldId: string;
     minText: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
-      if (
-        formField.id === formFieldId &&
-        formField.type.value === "linearScale"
-      ) {
+    const newFormFields = fields.map((field) => {
+      if (field.id === fieldId && field.config.value === "linearScale") {
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
+            ...field.config,
             minText,
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const changeMaxText = ({
-    formFieldId,
+    fieldId,
     maxText,
   }: {
-    formFieldId: string;
+    fieldId: string;
     maxText: string;
   }) => {
-    const newFormFields = formFields.map((formField) => {
-      if (
-        formField.id === formFieldId &&
-        formField.type.value === "linearScale"
-      ) {
+    const newFormFields = fields.map((field) => {
+      if (field.id === fieldId && field.config.value === "linearScale") {
         return {
-          ...formField,
+          ...field,
           type: {
-            ...formField.type,
+            ...field.config,
             maxText,
           },
         };
       } else {
-        return formField;
+        return field;
       }
     });
 
-    setFormFields(newFormFields);
+    setFields(newFormFields);
   };
 
   const store = {
@@ -456,7 +430,7 @@ const FormEditProvider = ({ children }: Props) => {
     values: {
       title,
       description,
-      formFields,
+      fields,
     },
     submitForm,
     changeTitle: setTitle,
@@ -464,18 +438,15 @@ const FormEditProvider = ({ children }: Props) => {
     addFormField,
     changeFieldQuestion,
     changeFieldType,
-    changeFieldRequired,
+    toggleSchemaProperty,
     changeFieldOption,
     addFieldOption,
     deleteFieldOption,
-    toggleAllowOtherOption,
     changeMinScale,
     changeMaxScale,
     changeMinText,
     changeMaxText,
   };
-
-  console.log(store.values);
 
   return (
     <FormEditContext.Provider value={store}>

@@ -1,11 +1,15 @@
 import { makeStyles, Box, TextField } from "@material-ui/core";
+import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import { FormButton, FormFieldBox } from "src/components";
-import useFormEdit from "src/hooks/useFormEdit";
-import FormFieldComp from "./FormField";
+import formCreatorStore from "src/stores/formCreatorStore";
+import { FormField } from "src/types/FormField";
+import { FormValues } from "src/types/FormValues";
+import FormFieldContent from "./FormField";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
-  formFields: {
+  fields: {
     display: "grid",
     gap: theme.spacing(2),
   },
@@ -22,25 +26,38 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Form = () => {
+// export type Props = {
+//   values: FormValues;
+//   handleTitleChange: (
+//     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+//   ) => void;
+//   handleDescriptionChange: (
+//     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+//   ) => void;
+//   handleFieldChange: (newField: FormField) => void;
+// };
+
+const Form = observer(() => {
   const classes = useStyles();
 
-  const { values, loading, changeTitle, changeDescription, submitForm } =
-    useFormEdit();
+  const { title, description, fields, changeTitle, changeDescription } =
+    formCreatorStore;
+
+  console.log(title);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("1. handleSubmit");
-    submitForm();
+    // submitForm();
+    console.log("submit");
   };
 
   return (
     <Box className={classes.root}>
       <form onSubmit={handleSubmit}>
-        <Box className={classes.formFields}>
+        <Box className={classes.fields}>
           <FormFieldBox active header>
             <TextField
-              value={values.title}
+              value={title}
               onChange={(e) => changeTitle(e.target.value)}
               placeholder="Tytuł formularza"
               className={classes.titleTextField}
@@ -51,22 +68,22 @@ const Form = () => {
               }}
             />
             <TextField
-              value={values.description}
+              value={description}
               onChange={(e) => changeDescription(e.target.value)}
               placeholder="Opis formularza"
               className={classes.descriptionTextField}
             />
           </FormFieldBox>
-          {values.formFields.map((formField) => (
-            <FormFieldBox key={formField.id} active>
-              <FormFieldComp formField={formField} />
+          {fields.map((field) => (
+            <FormFieldBox key={field.id} active>
+              <FormFieldContent field={field} />
             </FormFieldBox>
           ))}
         </Box>
-        <FormButton loading={loading} />
+        <FormButton loading={false} />
       </form>
     </Box>
   );
-};
+});
 
 export default Form;

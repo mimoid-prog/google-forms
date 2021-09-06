@@ -1,39 +1,42 @@
 export type FormField = {
   id: string;
   question: string;
-  required: boolean;
   order: number;
-  type: FormFieldType;
+  config: FormFieldConfig;
+  schema: Schema;
 };
 
-export type FormFieldType =
-  | ShortAnswerType
-  | LongAnswerType
-  | SingleChoiceType
-  | MultipleChoiceType
-  | LinearScaleType;
+export type Schema = {
+  required: boolean;
+  allowOtherOption: boolean;
+};
 
-export type ShortAnswerType = {
+export type FormFieldConfig =
+  | ShortAnswerConfig
+  | LongAnswerConfig
+  | SingleChoiceConfig
+  | MultipleChoiceConfig
+  | LinearScaleConfig;
+
+export type ShortAnswerConfig = {
   value: ShortAnswerValue;
 };
 
-export type LongAnswerType = {
+export type LongAnswerConfig = {
   value: LongAnswerValue;
 };
 
-export type SingleChoiceType = {
+export type SingleChoiceConfig = {
   value: SingleChoiceValue;
   options: Option[];
-  allowOtherOption: boolean;
 };
 
-export type MultipleChoiceType = {
+export type MultipleChoiceConfig = {
   value: MultipleChoiceValue;
   options: Option[];
-  allowOtherOption: boolean;
 };
 
-export type LinearScaleType = {
+export type LinearScaleConfig = {
   value: LinearScaleValue;
   minScale: string;
   minText: string;
@@ -41,7 +44,7 @@ export type LinearScaleType = {
   maxText: string;
 };
 
-export type FormFieldTypeValue =
+export type FormFieldConfigValue =
   | ShortAnswerValue
   | LongAnswerValue
   | SingleChoiceValue
@@ -67,31 +70,31 @@ export type FormFieldWithState = {
   question: string;
   required: boolean;
   order: number;
-  type: FormFieldTypeWithState;
+  type: FormFieldConfigWithState;
 };
 
-export type FormFieldTypeWithState =
-  | ShortAnswerTypeWithState
-  | LongAnswerTypeWithState
-  | SingleChoiceTypeWithState
-  | MultipleChoiceTypeWithState
-  | LinearScaleTypeWithState;
+export type FormFieldConfigWithState =
+  | ShortAnswerConfigWithState
+  | LongAnswerConfigWithState
+  | SingleChoiceConfigWithState
+  | MultipleChoiceConfigWithState
+  | LinearScaleConfigWithState;
 
-export type ShortAnswerTypeWithState = ShortAnswerType & {
+export type ShortAnswerConfigWithState = ShortAnswerConfig & {
   state: {
     value: string;
     error: string | null;
   };
 };
 
-export type LongAnswerTypeWithState = LongAnswerType & {
+export type LongAnswerConfigWithState = LongAnswerConfig & {
   state: {
     value: string;
     error: string | null;
   };
 };
 
-export type SingleChoiceTypeWithState = SingleChoiceType & {
+export type SingleChoiceConfigWithState = SingleChoiceConfig & {
   state: {
     value: {
       name: string;
@@ -101,7 +104,7 @@ export type SingleChoiceTypeWithState = SingleChoiceType & {
   };
 };
 
-export type MultipleChoiceTypeWithState = MultipleChoiceType & {
+export type MultipleChoiceConfigWithState = MultipleChoiceConfig & {
   state: {
     value: {
       name: string;
@@ -111,7 +114,7 @@ export type MultipleChoiceTypeWithState = MultipleChoiceType & {
   };
 };
 
-export type LinearScaleTypeWithState = LinearScaleType & {
+export type LinearScaleConfigWithState = LinearScaleConfig & {
   state: {
     value: string;
     error: string | null;
