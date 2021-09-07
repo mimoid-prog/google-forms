@@ -1,15 +1,13 @@
 import debounce from "lodash.debounce";
-import { action, computed, makeObservable, observable, reaction } from "mobx";
+import { action, computed, makeObservable, observable, observe } from "mobx";
 import { nanoid } from "nanoid";
 
 import {
-  FormField,
   FormFieldConfigValue,
   LinearScaleConfig,
   Schema,
 } from "src/types/FormField";
-
-import formStore from "./formStore";
+import { FormValues } from "src/types/FormValues";
 
 const defaultOptions = [
   {
@@ -21,16 +19,21 @@ const defaultOptions = [
 export class FormCreatorStore {
   isLoading = false;
   isSubmitting = false;
-  title = "Formularz bez nazwy";
-  description = "";
-  fields: FormField[] = [];
 
-  constructor() {
+  id = "";
+
+  values: FormValues = {
+    title: "Formularz bez nazwy",
+    description: "",
+    fields: [],
+  };
+
+  constructor(id: string) {
+    this.id = id;
+
     makeObservable(this, {
       isSubmitting: observable,
-      title: observable,
-      description: observable,
-      fields: observable,
+      values: observable,
       fieldsAmount: computed,
       sortedFields: computed,
       toggleSchemaProperty: action.bound,
@@ -49,37 +52,35 @@ export class FormCreatorStore {
       submitForm: action.bound,
     });
 
-    reaction(
-      () => this.title,
-      (title) => {
-        console.log(title);
-        debounce(function () {
-          console.log("Tytuł to: ", title);
-        }, 500);
-      },
-    );
+    const debouncedSubmit = debounce(() => {
+      this.submitForm();
+    }, 2000);
+
+    observe(this.values, () => {
+      debouncedSubmit();
+    });
   }
 
   get fieldsAmount() {
-    return this.fields.length;
+    return this.values.fields.length;
   }
 
   get sortedFields() {
-    return this.fields.slice().sort((a, b) => a.order - b.order);
+    return this.values.fields.slice().sort((a, b) => a.order - b.order);
   }
 
   changeTitle(newTitle: string) {
-    this.title = newTitle;
+    this.values.title = newTitle;
   }
 
   changeDescription(newDescription: string) {
-    this.description = newDescription;
+    this.values.description = newDescription;
   }
 
   addField() {
-    this.fields.push({
+    this.values.fields.push({
       id: nanoid(),
-      order: this.fields.length,
+      order: this.values.fields.length,
       question: "",
       config: {
         value: "singleChoice",
@@ -93,11 +94,13 @@ export class FormCreatorStore {
   }
 
   deleteField(fieldId: string) {
-    this.fields = this.fields.filter((field) => field.id !== fieldId);
+    this.values.fields = this.values.fields.filter(
+      (field) => field.id !== fieldId,
+    );
   }
 
   changeFieldQuestion(fieldId: string, newQuestion: string) {
-    this.fields = this.fields.map((field) =>
+    this.values.fields = this.values.fields.map((field) =>
       field.id === fieldId
         ? {
             ...field,
@@ -108,7 +111,7 @@ export class FormCreatorStore {
   }
 
   changeFieldConfig(fieldId: string, newConfigValue: FormFieldConfigValue) {
-    this.fields = this.fields.map((field) => {
+    this.values.fields = this.values.fields.map((field) => {
       if (field.id === fieldId) {
         let newConfig;
 
@@ -151,7 +154,7 @@ export class FormCreatorStore {
   }
 
   toggleSchemaProperty(fieldId: string, property: keyof Schema) {
-    this.fields = this.fields.map((field) =>
+    this.values.fields = this.values.fields.map((field) =>
       field.id === fieldId
         ? {
             ...field,
@@ -165,7 +168,7 @@ export class FormCreatorStore {
   }
 
   addFieldOption(fieldId: string) {
-    this.fields = this.fields.map((field) => {
+    this.values.fields = this.values.fields.map((field) => {
       if (
         field.id === fieldId &&
         (field.config.value === "singleChoice" ||
@@ -198,7 +201,7 @@ export class FormCreatorStore {
     optionId: string;
     value: string;
   }) {
-    this.fields = this.fields.map((field) => {
+    this.values.fields = this.values.fields.map((field) => {
       if (
         field.id === fieldId &&
         (field.config.value === "singleChoice" ||
@@ -233,7 +236,7 @@ export class FormCreatorStore {
     fieldId: string;
     optionId: string;
   }) {
-    this.fields = this.fields.map((field) => {
+    this.values.fields = this.values.fields.map((field) => {
       if (
         field.id === fieldId &&
         (field.config.value === "singleChoice" ||
@@ -265,7 +268,7 @@ export class FormCreatorStore {
     value: string;
     property: keyof LinearScaleConfig;
   }) {
-    this.fields = this.fields.map((field) => {
+    this.values.fields = this.values.fields.map((field) => {
       if (field.id === fieldId && field.config.value === "linearScale") {
         return {
           ...field,
@@ -281,36 +284,46 @@ export class FormCreatorStore {
   }
 
   moveFieldUp(fieldId: string) {
-    const fieldIndex = this.fields.findIndex((field) => field.id === fieldId);
-    const upperFieldIndex = this.fields.findIndex(
-      (field) => field.order === this.fields[fieldIndex].order - 1,
+    const fieldIndex = this.values.fields.findIndex(
+      (field) => field.id === fieldId,
+    );
+    const upperFieldIndex = this.values.fields.findIndex(
+      (field) => field.order === this.values.fields[fieldIndex].order - 1,
     );
 
-    this.fields[fieldIndex].order = this.fields[fieldIndex].order - 1;
-    this.fields[upperFieldIndex].order = this.fields[upperFieldIndex].order + 1;
+    this.values.fields[fieldIndex].order =
+      this.values.fields[fieldIndex].order - 1;
+    this.values.fields[upperFieldIndex].order =
+      this.values.fields[upperFieldIndex].order + 1;
   }
 
   moveFieldDown(fieldId: string) {
-    const fieldIndex = this.fields.findIndex((field) => field.id === fieldId);
-    const lowerFieldIndex = this.fields.findIndex(
-      (field) => field.order === this.fields[fieldIndex].order + 1,
+    const fieldIndex = this.values.fields.findIndex(
+      (field) => field.id === fieldId,
+    );
+    const lowerFieldIndex = this.values.fields.findIndex(
+      (field) => field.order === this.values.fields[fieldIndex].order + 1,
     );
 
-    this.fields[fieldIndex].order = this.fields[fieldIndex].order + 1;
-    this.fields[lowerFieldIndex].order = this.fields[lowerFieldIndex].order - 1;
+    this.values.fields[fieldIndex].order =
+      this.values.fields[fieldIndex].order + 1;
+    this.values.fields[lowerFieldIndex].order =
+      this.values.fields[lowerFieldIndex].order - 1;
   }
 
   async submitForm() {
     this.isSubmitting = true;
 
-    const createdId = await formStore.saveForm(undefined, {
-      title: this.title,
-      description: this.description,
-      fields: this.fields.sort((a, b) => a.order - b.order),
-    });
+    // const createdId = await formStore.saveForm(undefined, {
+    //   title: this.title,
+    //   description: this.description,
+    //   fields: this.values.fields.sort((a, b) => a.order - b.order),
+    // });
 
-    this.isSubmitting = false;
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 500);
 
-    return createdId;
+    // return createdId;
   }
 }

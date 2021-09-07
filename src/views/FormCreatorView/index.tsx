@@ -1,6 +1,12 @@
 import { Box, makeStyles } from "@material-ui/core";
 import { useState } from "react";
-import { Route, useRouteMatch, Switch, useLocation } from "react-router-dom";
+import {
+  Route,
+  useRouteMatch,
+  Switch,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 
 import { Container, Layout } from "src/components";
 import FormCreatorProvider from "src/contexts/FormCreatorContext";
@@ -19,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 const FormEditView = () => {
   const classes = useStyles();
+  const { id } = useParams<{ id: string }>();
   const { pathname } = useLocation();
 
   const [tab, setTab] = useState<TabValue>("questions");
@@ -27,7 +34,7 @@ const FormEditView = () => {
     setTab(newTab);
   };
 
-  const formCreatorStore = new FormCreatorStore();
+  const formCreatorStore = new FormCreatorStore(id);
 
   return (
     <Layout>

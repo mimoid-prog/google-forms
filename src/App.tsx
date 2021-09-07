@@ -21,10 +21,7 @@ const App = () => {
                 <Route exact path="/">
                   <HomeView />
                 </Route>
-                <Route path="/form-creator">
-                  <FormCreatorView />
-                </Route>
-                <Route path="/form-creator/:id">
+                <Route path="/form/:id/creator">
                   <FormCreatorView />
                 </Route>
                 {/* <Route path="/form/:id/completion">

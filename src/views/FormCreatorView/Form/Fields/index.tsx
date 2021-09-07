@@ -28,8 +28,12 @@ const useStyles = makeStyles((theme) => ({
 const Fields = observer(() => {
   const classes = useStyles();
 
-  const { title, description, sortedFields, changeTitle, changeDescription } =
-    useFormCreatorStore();
+  const {
+    values: { title, description },
+    sortedFields,
+    changeTitle,
+    changeDescription,
+  } = useFormCreatorStore();
 
   return (
     <Box className={classes.root}>

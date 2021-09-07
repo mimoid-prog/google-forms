@@ -34,9 +34,8 @@ const CreateForms = () => {
   const history = useHistory();
 
   const openNewForm = () => {
-    //TODO: change it to Link instead of function redirect
     const generatedId = nanoid();
-    history.push(`/form-creator`);
+    history.push(`/form/${generatedId}/creator`);
   };
 
   return (
