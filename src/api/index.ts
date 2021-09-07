@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+
 import { Form } from "src/types/Form";
 import { FormEditorValues } from "src/types/FormEditorValues";
 
@@ -36,7 +37,7 @@ export const getForms = (): Promise<Form[]> => {
         const parsedForms: Form[] = JSON.parse(forms);
 
         const sortedForms = parsedForms.sort(
-          (a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)
+          (a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt),
         );
 
         return resolve(sortedForms);
@@ -51,20 +52,22 @@ export const getForms = (): Promise<Form[]> => {
   });
 };
 
-export const createForm = (data: FormEditorValues): Promise<void> => {
+export const createForm = (data: FormEditorValues): Promise<string> => {
   return new Promise((resolve, reject) => {
     try {
       getForms().then((forms) => {
+        const id = nanoid();
+
         const newForm: Form = {
           ...data,
-          id: nanoid(),
+          id,
           updatedAt: new Date().toISOString(),
         };
 
         const newForms = [...forms, newForm];
 
         localStorage.setItem("forms", JSON.stringify(newForms));
-        return resolve();
+        return resolve(id);
       });
     } catch (error) {
       return reject({
@@ -76,8 +79,8 @@ export const createForm = (data: FormEditorValues): Promise<void> => {
 
 export const updateForm = (
   id: string,
-  data: FormEditorValues
-): Promise<void> => {
+  data: FormEditorValues,
+): Promise<string> => {
   return new Promise((resolve, reject) => {
     try {
       getForms().then((forms) => {
@@ -94,7 +97,7 @@ export const updateForm = (
 
         localStorage.setItem("forms", JSON.stringify(newForms));
 
-        return resolve();
+        return resolve(id);
       });
     } catch (error) {
       return reject({

@@ -1,6 +1,15 @@
-import { action, makeObservable, observable } from "mobx";
+import debounce from "lodash.debounce";
+import { action, computed, makeObservable, observable, reaction } from "mobx";
 import { nanoid } from "nanoid";
-import { FormField, FormFieldConfigValue, Schema } from "src/types/FormField";
+
+import {
+  FormField,
+  FormFieldConfigValue,
+  LinearScaleConfig,
+  Schema,
+} from "src/types/FormField";
+
+import formStore from "./formStore";
 
 const defaultOptions = [
   {
@@ -10,15 +19,20 @@ const defaultOptions = [
 ];
 
 export class FormCreatorStore {
+  isLoading = false;
+  isSubmitting = false;
   title = "Formularz bez nazwy";
   description = "";
   fields: FormField[] = [];
 
   constructor() {
     makeObservable(this, {
+      isSubmitting: observable,
       title: observable,
       description: observable,
-      fields: observable.deep,
+      fields: observable,
+      fieldsAmount: computed,
+      sortedFields: computed,
       toggleSchemaProperty: action.bound,
       changeTitle: action.bound,
       changeDescription: action.bound,
@@ -29,8 +43,29 @@ export class FormCreatorStore {
       addFieldOption: action.bound,
       changeFieldOption: action.bound,
       deleteFieldOption: action.bound,
+      changeLinearScaleConfigProperty: action.bound,
+      moveFieldUp: action.bound,
+      moveFieldDown: action.bound,
       submitForm: action.bound,
     });
+
+    reaction(
+      () => this.title,
+      (title) => {
+        console.log(title);
+        debounce(function () {
+          console.log("Tytuł to: ", title);
+        }, 500);
+      },
+    );
+  }
+
+  get fieldsAmount() {
+    return this.fields.length;
+  }
+
+  get sortedFields() {
+    return this.fields.slice().sort((a, b) => a.order - b.order);
   }
 
   changeTitle(newTitle: string) {
@@ -48,7 +83,7 @@ export class FormCreatorStore {
       question: "",
       config: {
         value: "singleChoice",
-        options: observable(defaultOptions),
+        options: defaultOptions,
       },
       schema: {
         required: false,
@@ -68,7 +103,7 @@ export class FormCreatorStore {
             ...field,
             question: newQuestion,
           }
-        : field
+        : field,
     );
   }
 
@@ -125,7 +160,7 @@ export class FormCreatorStore {
               [property]: !field.schema[property],
             },
           }
-        : field
+        : field,
     );
   }
 
@@ -143,7 +178,7 @@ export class FormCreatorStore {
 
         return {
           ...field,
-          type: {
+          config: {
             ...field.config,
             options: [...field.config.options, newOption],
           },
@@ -169,21 +204,18 @@ export class FormCreatorStore {
         (field.config.value === "singleChoice" ||
           field.config.value === "multipleChoice")
       ) {
-        // console.log(fieldId, optionId, value);
         const newFormFieldOptions = field.config.options.map((option) =>
           option.id === optionId
             ? {
                 id: optionId,
                 label: value,
               }
-            : option
+            : option,
         );
-
-        console.log(newFormFieldOptions);
 
         return {
           ...field,
-          type: {
+          config: {
             ...field.config,
             options: newFormFieldOptions,
           },
@@ -208,12 +240,12 @@ export class FormCreatorStore {
           field.config.value === "multipleChoice")
       ) {
         const newOptions = field.config.options.filter(
-          (option) => option.id !== optionId
+          (option) => option.id !== optionId,
         );
 
         return {
           ...field,
-          type: {
+          config: {
             ...field.config,
             options: newOptions,
           },
@@ -224,13 +256,61 @@ export class FormCreatorStore {
     });
   }
 
-  submitForm() {
-    console.log(this.title);
-    console.log(this.description);
-    console.log(this.fields);
+  changeLinearScaleConfigProperty({
+    fieldId,
+    value,
+    property,
+  }: {
+    fieldId: string;
+    value: string;
+    property: keyof LinearScaleConfig;
+  }) {
+    this.fields = this.fields.map((field) => {
+      if (field.id === fieldId && field.config.value === "linearScale") {
+        return {
+          ...field,
+          config: {
+            ...field.config,
+            [property]: value,
+          },
+        };
+      } else {
+        return field;
+      }
+    });
+  }
+
+  moveFieldUp(fieldId: string) {
+    const fieldIndex = this.fields.findIndex((field) => field.id === fieldId);
+    const upperFieldIndex = this.fields.findIndex(
+      (field) => field.order === this.fields[fieldIndex].order - 1,
+    );
+
+    this.fields[fieldIndex].order = this.fields[fieldIndex].order - 1;
+    this.fields[upperFieldIndex].order = this.fields[upperFieldIndex].order + 1;
+  }
+
+  moveFieldDown(fieldId: string) {
+    const fieldIndex = this.fields.findIndex((field) => field.id === fieldId);
+    const lowerFieldIndex = this.fields.findIndex(
+      (field) => field.order === this.fields[fieldIndex].order + 1,
+    );
+
+    this.fields[fieldIndex].order = this.fields[fieldIndex].order + 1;
+    this.fields[lowerFieldIndex].order = this.fields[lowerFieldIndex].order - 1;
+  }
+
+  async submitForm() {
+    this.isSubmitting = true;
+
+    const createdId = await formStore.saveForm(undefined, {
+      title: this.title,
+      description: this.description,
+      fields: this.fields.sort((a, b) => a.order - b.order),
+    });
+
+    this.isSubmitting = false;
+
+    return createdId;
   }
 }
-
-const formCreatorStore = new FormCreatorStore();
-
-export default formCreatorStore;

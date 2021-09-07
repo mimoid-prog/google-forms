@@ -12,15 +12,15 @@ import {
   Select,
   MenuItem,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import { observer } from "mobx-react-lite";
+
+import useFormCreatorStore from "src/hooks/useFormCreatorStore";
 import {
   FormField,
   MultipleChoiceConfig,
   SingleChoiceConfig,
 } from "src/types/FormField";
-import CloseIcon from "@material-ui/icons/Close";
-import useFormEdit from "src/hooks/useFormEdit";
-import formCreatorStore from "src/stores/formCreatorStore";
-import { observer } from "mobx-react-lite";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -72,40 +72,16 @@ export type Props = {
 const FieldContent = observer(({ field }: Props) => {
   const classes = useStyles();
 
-  const { changeMinScale, changeMinText, changeMaxScale, changeMaxText } =
-    useFormEdit();
-
   const {
     toggleSchemaProperty,
     changeFieldOption,
     addFieldOption,
     deleteFieldOption,
-  } = formCreatorStore;
+    changeLinearScaleConfigProperty,
+  } = useFormCreatorStore();
 
   const handleOptionChange = (value: string, optionId: string) => {
     changeFieldOption({ fieldId: field.id, optionId, value });
-  };
-
-  const handleMinScaleChange = (
-    e: React.ChangeEvent<{
-      name?: string | undefined;
-      value: unknown;
-    }>
-  ) => {
-    const value = e.target.value as string;
-
-    changeMinScale({ fieldId: field.id, minScale: value });
-  };
-
-  const handleMaxScaleChange = (
-    e: React.ChangeEvent<{
-      name?: string | undefined;
-      value: unknown;
-    }>
-  ) => {
-    const value = e.target.value as string;
-
-    changeMaxScale({ fieldId: field.id, maxScale: value });
   };
 
   switch (field.config.value) {
@@ -284,7 +260,13 @@ const FieldContent = observer(({ field }: Props) => {
                 <Select
                   labelId="linearScaleMin"
                   value={field.config.minScale}
-                  onChange={handleMinScaleChange}
+                  onChange={(e) =>
+                    changeLinearScaleConfigProperty({
+                      fieldId: field.id,
+                      value: e.target.value as string,
+                      property: "minScale",
+                    })
+                  }
                   label="Od"
                 >
                   <MenuItem value="0">0</MenuItem>
@@ -299,7 +281,13 @@ const FieldContent = observer(({ field }: Props) => {
                 <Select
                   labelId="linearScaleMin"
                   value={field.config.maxScale}
-                  onChange={handleMaxScaleChange}
+                  onChange={(e) =>
+                    changeLinearScaleConfigProperty({
+                      fieldId: field.id,
+                      value: e.target.value as string,
+                      property: "maxScale",
+                    })
+                  }
                   label="Od"
                 >
                   <MenuItem value="2">2</MenuItem>
@@ -320,9 +308,10 @@ const FieldContent = observer(({ field }: Props) => {
             <TextField
               value={field.config.minText}
               onChange={(e) =>
-                changeMinText({
+                changeLinearScaleConfigProperty({
                   fieldId: field.id,
-                  minText: e.target.value,
+                  value: e.target.value,
+                  property: "minText",
                 })
               }
               placeholder="Etykieta (opcjonalna)"
@@ -334,9 +323,10 @@ const FieldContent = observer(({ field }: Props) => {
             <TextField
               value={field.config.maxText}
               onChange={(e) =>
-                changeMaxText({
+                changeLinearScaleConfigProperty({
                   fieldId: field.id,
-                  maxText: e.target.value,
+                  value: e.target.value,
+                  property: "maxText",
                 })
               }
               placeholder="Etykieta (opcjonalna)"

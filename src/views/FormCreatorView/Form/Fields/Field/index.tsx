@@ -15,19 +15,23 @@ import {
   FormControlLabel,
   Switch,
 } from "@material-ui/core";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
+import FilterNoneIcon from "@material-ui/icons/FilterNone";
+import LinearScaleIcon from "@material-ui/icons/LinearScale";
+import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
+import RadioButtonCheckedOutlinedIcon from "@material-ui/icons/RadioButtonCheckedOutlined";
 import ShortTextOutlinedIcon from "@material-ui/icons/ShortTextOutlined";
 import SubjectOutlinedIcon from "@material-ui/icons/SubjectOutlined";
-import RadioButtonCheckedOutlinedIcon from "@material-ui/icons/RadioButtonCheckedOutlined";
-import CheckBoxIcon from "@material-ui/icons/CheckBox";
-import LinearScaleIcon from "@material-ui/icons/LinearScale";
-import { FormField, FormFieldConfigValue } from "src/types/FormField";
-import { ReactNode } from "react";
-import FilterNoneIcon from "@material-ui/icons/FilterNone";
-import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
-import MoreVertOutlinedIcon from "@material-ui/icons/MoreVertOutlined";
-import FieldContent from "./FieldContent";
 import { observer } from "mobx-react-lite";
-import formCreatorStore from "src/stores/formCreatorStore";
+import { ReactNode } from "react";
+
+import useFormCreatorStore from "src/hooks/useFormCreatorStore";
+import { FormField, FormFieldConfigValue } from "src/types/FormField";
+
+import FieldContent from "./FieldContent";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -96,11 +100,14 @@ const Field = observer(({ field }: Props) => {
   const classes = useStyles();
 
   const {
+    fieldsAmount,
     changeFieldQuestion,
     changeFieldConfig,
     toggleSchemaProperty,
     deleteField,
-  } = formCreatorStore;
+    moveFieldUp,
+    moveFieldDown,
+  } = useFormCreatorStore();
 
   return (
     <Box className={classes.root}>
@@ -128,7 +135,7 @@ const Field = observer(({ field }: Props) => {
               onChange={(e) =>
                 changeFieldConfig(
                   field.id,
-                  e.target.value as FormFieldConfigValue
+                  e.target.value as FormFieldConfigValue,
                 )
               }
               labelId="type"
@@ -152,6 +159,18 @@ const Field = observer(({ field }: Props) => {
       <Box className={classes.bottomBar}>
         <Divider className={classes.bottomBarDivider} />
         <Box className={classes.bottomBarList}>
+          <IconButton
+            disabled={field.order === 0}
+            onClick={() => moveFieldUp(field.id)}
+          >
+            <ArrowUpwardIcon />
+          </IconButton>
+          <IconButton
+            disabled={field.order === fieldsAmount - 1 || fieldsAmount === 1}
+            onClick={() => moveFieldDown(field.id)}
+          >
+            <ArrowDownwardIcon />
+          </IconButton>
           <IconButton disabled>
             <FilterNoneIcon />
           </IconButton>

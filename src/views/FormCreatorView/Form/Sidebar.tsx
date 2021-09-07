@@ -1,14 +1,14 @@
 import { makeStyles, Paper, IconButton, Tooltip, Box } from "@material-ui/core";
-import { ReactNode } from "react";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import FormatSizeIcon from "@material-ui/icons/FormatSize";
 import CropOriginalIcon from "@material-ui/icons/CropOriginal";
-import MovieCreationOutlinedIcon from "@material-ui/icons/MovieCreationOutlined";
+import FormatSizeIcon from "@material-ui/icons/FormatSize";
 import ImportExportOutlinedIcon from "@material-ui/icons/ImportExportOutlined";
+import MovieCreationOutlinedIcon from "@material-ui/icons/MovieCreationOutlined";
 import ViewAgendaOutlinedIcon from "@material-ui/icons/ViewAgendaOutlined";
-import useFormEdit from "src/hooks/useFormEdit";
-import formCreatorStore from "src/stores/formCreatorStore";
 import { observer } from "mobx-react-lite";
+import { ReactNode } from "react";
+
+import useFormCreatorStore from "src/hooks/useFormCreatorStore";
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -50,7 +50,7 @@ type MenuItem = {
 const Sidebar = observer(() => {
   const classes = useStyles();
 
-  const { addField } = formCreatorStore;
+  const { addField } = useFormCreatorStore();
 
   const items: MenuItem[] = [
     {

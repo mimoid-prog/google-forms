@@ -5,9 +5,7 @@ const useFormStore = () => {
   const store = useContext(FormContext);
 
   if (store === undefined)
-    throw new Error(
-      "useFormStore hooks needs to used within FormStoreProvider"
-    );
+    throw new Error("useFormStore hook needs to used within FormStoreProvider");
 
   return store;
 };

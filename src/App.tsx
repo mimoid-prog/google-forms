@@ -1,10 +1,12 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import HomeView from "./views/HomeView";
 import { ThemeProvider } from "@material-ui/core";
-import { theme } from "./theme";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+
 import FormProvider from "./contexts/FormContext";
+import { theme } from "./theme";
 import FormCreatorView from "./views/FormCreatorView";
+import HomeView from "./views/HomeView";
+
 // import FormCompletionView from "./views/FormCompletionView";
 
 const App = () => {
@@ -19,7 +21,10 @@ const App = () => {
                 <Route exact path="/">
                   <HomeView />
                 </Route>
-                <Route path="/form-edit">
+                <Route path="/form-creator">
+                  <FormCreatorView />
+                </Route>
+                <Route path="/form-creator/:id">
                   <FormCreatorView />
                 </Route>
                 {/* <Route path="/form/:id/completion">

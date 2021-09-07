@@ -1,7 +1,7 @@
 import useFormStore from "./useFormStore";
-import useFormEdit from "./useFormEdit";
+import useFormCreatorStore from "./useFormCreatorStore";
 
 export default {
   useFormStore,
-  useFormEdit,
+  useFormCreatorStore,
 };

@@ -1,11 +1,14 @@
 import { Box, makeStyles } from "@material-ui/core";
 import { useState } from "react";
-import { Route, useRouteMatch, Switch } from "react-router-dom";
+import { Route, useRouteMatch, Switch, useLocation } from "react-router-dom";
+
 import { Container, Layout } from "src/components";
+import FormCreatorProvider from "src/contexts/FormCreatorContext";
+import { FormCreatorStore } from "src/stores/formCreatorStore";
+
+import Form from "./Form";
 import Navbar from "./Navbar";
 import { TabValue } from "./types";
-import FormView from "./views/FormView";
-import FormEditProvider from "src/contexts/FormEditContext";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -16,13 +19,15 @@ const useStyles = makeStyles((theme) => ({
 
 const FormEditView = () => {
   const classes = useStyles();
-  const { path } = useRouteMatch();
+  const { pathname } = useLocation();
 
   const [tab, setTab] = useState<TabValue>("questions");
 
   const changeTab = (newTab: TabValue) => {
     setTab(newTab);
   };
+
+  const formCreatorStore = new FormCreatorStore();
 
   return (
     <Layout>
@@ -31,12 +36,12 @@ const FormEditView = () => {
       <Box className={classes.content}>
         <Container maxWidth="md">
           <Switch>
-            <Route exact path={path}>
-              <FormEditProvider>
-                <FormView />
-              </FormEditProvider>
+            <Route exact path={pathname}>
+              <FormCreatorProvider store={formCreatorStore}>
+                <Form />
+              </FormCreatorProvider>
             </Route>
-            <Route exact path={`${path}/answers`}>
+            <Route exact path={`${pathname}/answers`}>
               <p>Answers</p>
             </Route>
           </Switch>

@@ -1,8 +1,9 @@
 import { makeStyles, Box, Typography, ButtonBase } from "@material-ui/core";
-import Container from "src/components/Container";
-import newFormImage from "src/assets/images/new-form-icon.png";
-import { useHistory } from "react-router-dom";
 import { nanoid } from "nanoid";
+import { useHistory } from "react-router-dom";
+
+import newFormImage from "src/assets/images/new-form-icon.png";
+import Container from "src/components/Container";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,7 +36,7 @@ const CreateForms = () => {
   const openNewForm = () => {
     //TODO: change it to Link instead of function redirect
     const generatedId = nanoid();
-    history.push(`/form-edit`);
+    history.push(`/form-creator`);
   };
 
   return (

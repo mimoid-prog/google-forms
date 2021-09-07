@@ -1,4 +1,5 @@
 import { action, makeObservable, observable } from "mobx";
+
 import * as api from "src/api";
 import { Form } from "src/types/Form";
 import { FormEditorValues } from "src/types/FormEditorValues";
@@ -34,13 +35,17 @@ export class FormStore {
   }
 
   async saveForm(id: string | undefined, form: FormEditorValues) {
+    let createdId = id;
+
     if (id) {
       await api.updateForm(id, form);
     } else {
-      await api.createForm(form);
+      createdId = await api.createForm(form);
     }
 
     this.fetchForms();
+
+    return createdId;
   }
 
   async deleteForm(id: string) {
