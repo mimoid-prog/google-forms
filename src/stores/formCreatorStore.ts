@@ -18,7 +18,7 @@ export class FormCreatorStore {
     makeObservable(this, {
       title: observable,
       description: observable,
-      fields: observable,
+      fields: observable.deep,
       toggleSchemaProperty: action.bound,
       changeTitle: action.bound,
       changeDescription: action.bound,
@@ -48,7 +48,7 @@ export class FormCreatorStore {
       question: "",
       config: {
         value: "singleChoice",
-        options: defaultOptions,
+        options: observable(defaultOptions),
       },
       schema: {
         required: false,
