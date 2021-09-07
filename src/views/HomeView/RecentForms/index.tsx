@@ -7,8 +7,10 @@ import {
 } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
+
 import Container from "src/components/Container";
 import useFormStore from "src/hooks/useFormStore";
+
 import FormItem from "./FormItem";
 
 const useStyles = makeStyles((theme) => ({
@@ -41,7 +43,6 @@ const useStyles = makeStyles((theme) => ({
 const RecentForms = observer(() => {
   const classes = useStyles();
   const { forms, fetchForms, isInitiallyFetched, isFetching } = useFormStore();
-  console.log(isFetching);
 
   useEffect(() => {
     if (isInitiallyFetched === false) {

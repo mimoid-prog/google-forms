@@ -7,11 +7,12 @@ import {
   Typography,
   Avatar,
 } from "@material-ui/core";
-import formLogo from "src/assets/images/form-logo.png";
 import MenuIcon from "@material-ui/icons/Menu";
-import { Link } from "react-router-dom";
 import TuneIcon from "@material-ui/icons/Tune";
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
+
+import formLogo from "src/assets/images/form-logo.png";
 
 const useStyles = makeStyles((theme) => ({
   root: {},

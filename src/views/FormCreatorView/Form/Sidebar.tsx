@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 2),
     [theme.breakpoints.up("lg")]: {
       position: "static",
+      bottom: "auto",
       width: "auto",
       transform: "translateX(0)",
       padding: 0,

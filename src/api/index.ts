@@ -1,9 +1,9 @@
-import { nanoid } from "nanoid";
-
 import { Form } from "src/types/Form";
 import { FormEditorValues } from "src/types/FormEditorValues";
 
-export const getForm = (id: string): Promise<Form> => {
+const FAKE_DELAY = 300;
+
+export const getForm = (id: string): Promise<Form | null> => {
   return new Promise((resolve, reject) => {
     try {
       const forms = localStorage.getItem("forms");
@@ -12,13 +12,9 @@ export const getForm = (id: string): Promise<Form> => {
         const parsedForms: Form[] = JSON.parse(forms);
         const form = parsedForms.find((form) => form.id === id);
 
-        if (form) {
-          return resolve(form);
-        } else {
-          return reject({ message: "Form not found" });
-        }
+        return setTimeout(() => resolve(form || null), FAKE_DELAY);
       } else {
-        return reject({ message: "Forms not found" });
+        return setTimeout(() => resolve(null), FAKE_DELAY);
       }
     } catch (error) {
       return reject({
@@ -52,52 +48,28 @@ export const getForms = (): Promise<Form[]> => {
   });
 };
 
-export const createForm = (data: FormEditorValues): Promise<string> => {
+export const saveForm = (
+  id: string,
+  values: FormEditorValues,
+): Promise<void> => {
   return new Promise((resolve, reject) => {
     try {
       getForms().then((forms) => {
-        const id = nanoid();
+        const isCreated = forms.findIndex((form) => form.id === id) !== -1;
 
-        const newForm: Form = {
-          ...data,
+        const newForm = {
+          ...values,
           id,
           updatedAt: new Date().toISOString(),
         };
 
-        const newForms = [...forms, newForm];
-
-        localStorage.setItem("forms", JSON.stringify(newForms));
-        return resolve(id);
-      });
-    } catch (error) {
-      return reject({
-        message: "An error occured",
-      });
-    }
-  });
-};
-
-export const updateForm = (
-  id: string,
-  data: FormEditorValues,
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    try {
-      getForms().then((forms) => {
-        const newForms = forms.map((form) => {
-          if (form.id === id) {
-            return {
-              ...data,
-              updatedAt: new Date().toISOString(),
-            };
-          } else {
-            return form;
-          }
-        });
+        const newForms = isCreated
+          ? forms.map((form) => (form.id === id ? newForm : form))
+          : [...forms, newForm];
 
         localStorage.setItem("forms", JSON.stringify(newForms));
 
-        return resolve(id);
+        setTimeout(() => resolve(), FAKE_DELAY);
       });
     } catch (error) {
       return reject({

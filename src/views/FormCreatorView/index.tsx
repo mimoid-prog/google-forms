@@ -1,12 +1,7 @@
-import { Box, makeStyles } from "@material-ui/core";
-import { useState } from "react";
-import {
-  Route,
-  useRouteMatch,
-  Switch,
-  useLocation,
-  useParams,
-} from "react-router-dom";
+import { Box, CircularProgress, makeStyles } from "@material-ui/core";
+import { observer } from "mobx-react-lite";
+import { useEffect, useState } from "react";
+import { Route, Switch, useLocation, useParams } from "react-router-dom";
 
 import { Container, Layout } from "src/components";
 import FormCreatorProvider from "src/contexts/FormCreatorContext";
@@ -21,41 +16,55 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#f1f3f4",
     minHeight: "100vh",
   },
+  loadingBox: {
+    display: "flex",
+    justifyContent: "center",
+  },
 }));
 
-const FormEditView = () => {
+const FormEditView = observer(() => {
   const classes = useStyles();
   const { id } = useParams<{ id: string }>();
   const { pathname } = useLocation();
 
   const [tab, setTab] = useState<TabValue>("questions");
 
+  console.log("render");
+
   const changeTab = (newTab: TabValue) => {
     setTab(newTab);
   };
 
-  const formCreatorStore = new FormCreatorStore(id);
+  const [formCreatorStore] = useState(new FormCreatorStore(id));
+
+  useEffect(() => {
+    formCreatorStore.getFormValues(id);
+  }, []);
 
   return (
-    <Layout>
+    <FormCreatorProvider store={formCreatorStore}>
       <Navbar value={tab} changeValue={changeTab} />
 
       <Box className={classes.content}>
         <Container maxWidth="md">
-          <Switch>
-            <Route exact path={pathname}>
-              <FormCreatorProvider store={formCreatorStore}>
+          {formCreatorStore.isLoading ? (
+            <Box className={classes.loadingBox}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Switch>
+              <Route exact path={pathname}>
                 <Form />
-              </FormCreatorProvider>
-            </Route>
-            <Route exact path={`${pathname}/answers`}>
-              <p>Answers</p>
-            </Route>
-          </Switch>
+              </Route>
+              <Route exact path={`${pathname}/answers`}>
+                <p>Answers</p>
+              </Route>
+            </Switch>
+          )}
         </Container>
       </Box>
-    </Layout>
+    </FormCreatorProvider>
   );
-};
+});
 
 export default FormEditView;

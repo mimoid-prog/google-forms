@@ -34,23 +34,12 @@ export class FormStore {
     this.isInitiallyFetched = true;
   }
 
-  async saveForm(id: string | undefined, form: FormEditorValues) {
-    let createdId = id;
-
-    if (id) {
-      await api.updateForm(id, form);
-    } else {
-      createdId = await api.createForm(form);
-    }
-
-    this.fetchForms();
-
-    return createdId;
+  async saveForm(id: string, form: FormEditorValues) {
+    await api.saveForm(id, form);
   }
 
   async deleteForm(id: string) {
     await api.deleteForm(id);
-
     this.fetchForms();
   }
 }

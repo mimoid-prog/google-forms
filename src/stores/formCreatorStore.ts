@@ -2,12 +2,15 @@ import debounce from "lodash.debounce";
 import { action, computed, makeObservable, observable, observe } from "mobx";
 import { nanoid } from "nanoid";
 
+import * as api from "src/api";
 import {
   FormFieldConfigValue,
   LinearScaleConfig,
   Schema,
 } from "src/types/FormField";
 import { FormValues } from "src/types/FormValues";
+
+import formStore from "./formStore";
 
 const defaultOptions = [
   {
@@ -17,8 +20,9 @@ const defaultOptions = [
 ];
 
 export class FormCreatorStore {
-  isLoading = false;
-  isSubmitting = false;
+  isLoading = true;
+  isSaving = false;
+  isSaved = false;
 
   id = "";
 
@@ -32,7 +36,9 @@ export class FormCreatorStore {
     this.id = id;
 
     makeObservable(this, {
-      isSubmitting: observable,
+      isLoading: observable,
+      isSaving: observable,
+      isSaved: observable,
       values: observable,
       fieldsAmount: computed,
       sortedFields: computed,
@@ -49,12 +55,13 @@ export class FormCreatorStore {
       changeLinearScaleConfigProperty: action.bound,
       moveFieldUp: action.bound,
       moveFieldDown: action.bound,
+      getFormValues: action.bound,
       submitForm: action.bound,
     });
 
     const debouncedSubmit = debounce(() => {
       this.submitForm();
-    }, 2000);
+    }, 500);
 
     observe(this.values, () => {
       debouncedSubmit();
@@ -67,6 +74,20 @@ export class FormCreatorStore {
 
   get sortedFields() {
     return this.values.fields.slice().sort((a, b) => a.order - b.order);
+  }
+
+  getFormValues(id: string) {
+    api.getForm(id).then((form) => {
+      if (form) {
+        this.values = {
+          title: form.title,
+          description: form.description,
+          fields: form.fields,
+        };
+      }
+
+      this.isLoading = false;
+    });
   }
 
   changeTitle(newTitle: string) {
@@ -312,18 +333,9 @@ export class FormCreatorStore {
   }
 
   async submitForm() {
-    this.isSubmitting = true;
-
-    // const createdId = await formStore.saveForm(undefined, {
-    //   title: this.title,
-    //   description: this.description,
-    //   fields: this.values.fields.sort((a, b) => a.order - b.order),
-    // });
-
-    setTimeout(() => {
-      this.isSubmitting = false;
-    }, 500);
-
-    // return createdId;
+    this.isSaving = true;
+    await formStore.saveForm(this.id, this.values);
+    this.isSaving = false;
+    this.isSaved = true;
   }
 }

@@ -105,7 +105,6 @@ const FieldContent = observer(({ field }: Props) => {
       return (
         <Box>
           {field.config.options.map((option) => {
-            console.log(option.label);
             return (
               <Box key={option.id} className={classes.optionBox}>
                 <Radio disabled />
