@@ -14,6 +14,7 @@ import {
   IconButton,
   FormControlLabel,
   Switch,
+  Tooltip,
 } from "@material-ui/core";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
@@ -159,24 +160,34 @@ const Field = observer(({ field }: Props) => {
       <Box className={classes.bottomBar}>
         <Divider className={classes.bottomBarDivider} />
         <Box className={classes.bottomBarList}>
-          <IconButton
-            disabled={field.order === 0}
-            onClick={() => moveFieldUp(field.id)}
-          >
-            <ArrowUpwardIcon />
-          </IconButton>
-          <IconButton
-            disabled={field.order === fieldsAmount - 1 || fieldsAmount === 1}
-            onClick={() => moveFieldDown(field.id)}
-          >
-            <ArrowDownwardIcon />
-          </IconButton>
+          <Tooltip title="Przesuń do góry" placement="bottom">
+            <IconButton
+              disabled={field.order === 0}
+              onClick={() => moveFieldUp(field.id)}
+            >
+              <ArrowUpwardIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Przesuń do dołu" placement="bottom">
+            <IconButton
+              disabled={field.order === fieldsAmount - 1 || fieldsAmount === 1}
+              onClick={() => moveFieldDown(field.id)}
+            >
+              <ArrowDownwardIcon />
+            </IconButton>
+          </Tooltip>
+
           <IconButton disabled>
             <FilterNoneIcon />
           </IconButton>
-          <IconButton onClick={() => deleteField(field.id)}>
-            <DeleteOutlinedIcon />
-          </IconButton>
+
+          <Tooltip title="Usuń" placement="bottom">
+            <IconButton onClick={() => deleteField(field.id)}>
+              <DeleteOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+
           <Divider orientation="vertical" flexItem />
           <FormControlLabel
             control={

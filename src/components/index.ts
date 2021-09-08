@@ -1,7 +1,17 @@
 import Container from "./Container";
-import Layout from "./Layout";
-import FormFieldBox from "./FormFieldBox";
+import ErrorMessage from "./ErrorMessage";
 import FormButton from "./FormButton";
 import FormErrorMessage from "./FormErrorMessage";
+import FormFieldBox from "./FormFieldBox";
+import Layout from "./Layout";
+import Spinner from "./Spinner";
 
-export { Container, Layout, FormFieldBox, FormButton, FormErrorMessage };
+export {
+  Container,
+  Layout,
+  FormFieldBox,
+  FormButton,
+  FormErrorMessage,
+  Spinner,
+  ErrorMessage,
+};

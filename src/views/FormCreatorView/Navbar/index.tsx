@@ -74,7 +74,7 @@ const Navbar = observer(({ value, changeValue }: Props) => {
   const classes = useStyles();
   const { id } = useParams<{ id: string }>();
 
-  const { isSaving, isSaved, isLoading } = useFormCreatorStore();
+  const { isSaving, isSaved } = useFormCreatorStore();
 
   return (
     <Box className={classes.root}>
@@ -126,14 +126,15 @@ const Navbar = observer(({ value, changeValue }: Props) => {
             value="questions"
             className={classes.tab}
             component={Link}
-            to={`/${id}`}
+            to={`/form/${id}/creator`}
           />
           <Tab
             label="Odpowiedzi"
             value="answers"
             className={classes.tab}
             component={Link}
-            to={`/${id}/answers`}
+            to={`/form/${id}/creator/answers`}
+            disabled={!isSaved}
           />
         </Tabs>
       </Box>

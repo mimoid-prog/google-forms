@@ -1,9 +1,9 @@
-import { Box, CircularProgress, makeStyles } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Route, Switch, useLocation, useParams } from "react-router-dom";
 
-import { Container, Layout } from "src/components";
+import { Container, Spinner } from "src/components";
 import FormCreatorProvider from "src/contexts/FormCreatorContext";
 import { FormCreatorStore } from "src/stores/formCreatorStore";
 
@@ -12,13 +12,9 @@ import Navbar from "./Navbar";
 import { TabValue } from "./types";
 
 const useStyles = makeStyles((theme) => ({
-  content: {
+  root: {
     backgroundColor: "#f1f3f4",
     minHeight: "100vh",
-  },
-  loadingBox: {
-    display: "flex",
-    justifyContent: "center",
   },
 }));
 
@@ -27,28 +23,25 @@ const FormEditView = observer(() => {
   const { id } = useParams<{ id: string }>();
   const { pathname } = useLocation();
 
+  const formCreatorStore = useMemo(() => new FormCreatorStore(id), []);
+
   const [tab, setTab] = useState<TabValue>("questions");
 
   const changeTab = (newTab: TabValue) => {
     setTab(newTab);
   };
 
-  const [formCreatorStore] = useState(new FormCreatorStore(id));
-
   useEffect(() => {
     formCreatorStore.getFormValues(id);
   }, []);
 
   return (
-    <FormCreatorProvider store={formCreatorStore}>
-      <Navbar value={tab} changeValue={changeTab} />
-
-      <Box className={classes.content}>
+    <Box className={classes.root}>
+      <FormCreatorProvider store={formCreatorStore}>
+        <Navbar value={tab} changeValue={changeTab} />
         <Container maxWidth="md">
           {formCreatorStore.isLoading ? (
-            <Box className={classes.loadingBox}>
-              <CircularProgress />
-            </Box>
+            <Spinner />
           ) : (
             <Switch>
               <Route exact path={pathname}>
@@ -60,8 +53,8 @@ const FormEditView = observer(() => {
             </Switch>
           )}
         </Container>
-      </Box>
-    </FormCreatorProvider>
+      </FormCreatorProvider>
+    </Box>
   );
 });
 

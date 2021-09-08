@@ -1,5 +1,7 @@
 import { Form } from "src/types/Form";
 import { FormEditorValues } from "src/types/FormEditorValues";
+import { GetFormsConfig } from "src/types/GetFormsConfig";
+import { PreviewForm } from "src/types/PreviewForm";
 
 const FAKE_DELAY = 300;
 
@@ -24,7 +26,9 @@ export const getForm = (id: string): Promise<Form | null> => {
   });
 };
 
-export const getForms = (): Promise<Form[]> => {
+export const getForms = (
+  { preview }: GetFormsConfig = { preview: false },
+): Promise<Form[] | PreviewForm[]> => {
   return new Promise((resolve, reject) => {
     try {
       const forms = localStorage.getItem("forms");
@@ -36,7 +40,17 @@ export const getForms = (): Promise<Form[]> => {
           (a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt),
         );
 
-        return resolve(sortedForms);
+        const preperedForms = preview
+          ? sortedForms.map((form) => ({
+              id: form.id,
+              title: form.title,
+              updatedAt: form.updatedAt,
+            }))
+          : sortedForms;
+
+        setTimeout(() => {
+          return resolve(preperedForms);
+        }, FAKE_DELAY);
       } else {
         return resolve([]);
       }

@@ -11,7 +11,9 @@ import { ReactNode } from "react";
 import useFormCreatorStore from "src/hooks/useFormCreatorStore";
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    position: "relative",
+  },
   menuBox: {
     position: "fixed",
     bottom: 0,
@@ -21,11 +23,11 @@ const useStyles = makeStyles((theme) => ({
     height: "auto",
     padding: theme.spacing(0, 2),
     [theme.breakpoints.up("lg")]: {
-      position: "static",
+      position: "sticky",
+      top: 135,
       bottom: "auto",
       width: "auto",
       transform: "translateX(0)",
-      padding: 0,
     },
   },
   menu: {
@@ -88,7 +90,11 @@ const Sidebar = observer(() => {
           {items.map((item) => (
             <li key={item.title}>
               <Tooltip title={item.title} placement="right">
-                <IconButton size="small" onClick={item.callback}>
+                <IconButton
+                  size="small"
+                  onClick={item.callback}
+                  disabled={item.callback === undefined}
+                >
                   {item.icon}
                 </IconButton>
               </Tooltip>

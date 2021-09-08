@@ -1,11 +1,25 @@
-import { makeStyles, Box, Typography, IconButton } from "@material-ui/core";
+import {
+  makeStyles,
+  Box,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+} from "@material-ui/core";
+import DeleteOutlinedIcon from "@material-ui/icons/DeleteOutlined";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SpeakerNotesIcon from "@material-ui/icons/SpeakerNotes";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
-import { Form } from "src/types/Form";
+import { PreviewForm } from "src/types/PreviewForm";
 import shorten from "src/utils/shorten";
+
+const toReadableTime = (iso: string) => {
+  return new Date(iso).toLocaleTimeString().slice(0, 5);
+};
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -51,42 +65,78 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export type Props = {
-  form: Form;
+  form: PreviewForm;
+  handleDelete: (id: string) => void;
 };
 
-const FormItem = ({ form }: Props) => {
+const FormItem = ({ form, handleDelete }: Props) => {
   const classes = useStyles();
+  const history = useHistory();
+  const menuBoxRef = useRef<any>(null);
+  const menuRef = useRef<any>(null);
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+
+  const openForm = (e: React.MouseEvent<HTMLElement>) => {
+    if (
+      menuBoxRef.current &&
+      !menuBoxRef.current.contains(e.target) &&
+      menuRef.current &&
+      !menuRef.current.contains(e.target)
+    ) {
+      history.push(`/form/${form.id}/creator`);
+    }
+  };
+
+  const openMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(e.currentTarget);
+  };
+
+  const closeMenu = () => {
+    setAnchorEl(null);
+  };
 
   return (
-    <Link to={`/form/${form.id}/creator`}>
-      <Box className={classes.root}>
-        <Box className={classes.preview}>
-          <DescriptionOutlinedIcon className={classes.previewIcon} />
-        </Box>
-        <Box className={classes.info}>
-          <Typography
-            variant="body2"
-            className={classes.title}
-            title={form.title}
-          >
-            {shorten(form.title, 15)}
-          </Typography>
-          <Box className={classes.bottomBar}>
-            <Box className={classes.timeBox}>
-              <SpeakerNotesIcon color="primary" />
-              <Typography variant="body2" className={classes.time}>
-                Otwarto 19:45
-              </Typography>
-            </Box>
-            <Box>
-              <IconButton size="small">
-                <MoreVertIcon />
-              </IconButton>
-            </Box>
+    <Box className={classes.root} onClick={openForm}>
+      <Box className={classes.preview}>
+        <DescriptionOutlinedIcon className={classes.previewIcon} />
+      </Box>
+      <Box className={classes.info}>
+        <Typography
+          variant="body2"
+          className={classes.title}
+          title={form.title}
+        >
+          {shorten(form.title, 15)}
+        </Typography>
+        <Box className={classes.bottomBar}>
+          <Box className={classes.timeBox}>
+            <SpeakerNotesIcon color="primary" />
+            <Typography variant="body2" className={classes.time}>
+              {`Edytowano ${toReadableTime(form.updatedAt)}`}
+            </Typography>
           </Box>
+          <div ref={menuBoxRef}>
+            <IconButton size="small" onClick={openMenu}>
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              ref={menuRef}
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={closeMenu}
+            >
+              <MenuItem onClick={() => handleDelete(form.id)}>
+                <ListItemIcon>
+                  <DeleteOutlinedIcon />
+                </ListItemIcon>
+                <Typography variant="inherit">Usuń</Typography>
+              </MenuItem>
+            </Menu>
+          </div>
         </Box>
       </Box>
-    </Link>
+    </Box>
   );
 };
 

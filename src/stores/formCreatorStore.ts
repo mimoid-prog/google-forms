@@ -6,6 +6,7 @@ import {
   observable,
   reaction,
   runInAction,
+  toJS,
 } from "mobx";
 import { nanoid } from "nanoid";
 
@@ -71,11 +72,7 @@ export class FormCreatorStore {
     }, 750);
 
     reaction(
-      () => ({
-        title: this.values.title,
-        description: this.values.description,
-        fields: this.values.fields.slice(),
-      }),
+      () => toJS(this.values),
       () => {
         debouncedSubmit();
       },

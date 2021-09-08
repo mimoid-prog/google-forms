@@ -5,11 +5,12 @@ import {
   Card,
   CardContent,
 } from "@material-ui/core";
-import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-import Container from "src/components/Container";
+import { Container, ErrorMessage, Spinner } from "src/components";
 import useFormStore from "src/hooks/useFormStore";
+import { ApiError } from "src/types/ApiError";
+import { PreviewForm } from "src/types/PreviewForm";
 
 import FormItem from "./FormItem";
 
@@ -40,22 +41,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const RecentForms = observer(() => {
+const RecentForms = () => {
   const classes = useStyles();
-  const { forms, fetchForms, isInitiallyFetched, isFetching } = useFormStore();
+  const { fetchForms, deleteForm } = useFormStore();
+  const [forms, setForms] = useState<PreviewForm[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<ApiError | null>(null);
 
   useEffect(() => {
-    if (isInitiallyFetched === false) {
-      fetchForms();
-    }
+    fetchForms({ preview: true })
+      .then((forms) => {
+        setForms(forms);
+        setIsLoading(false);
+      })
+      .catch((err: ApiError) => {
+        setError(err);
+      });
   }, []);
+
+  const handleDelete = (id: string) => {
+    deleteForm(id);
+  };
 
   return (
     <Box className={classes.root}>
       <Container>
         <Typography variant="h5">Ostatnie formularze</Typography>
-        {isFetching ? (
-          <p>Trwa pobieranie...</p>
+        {error ? (
+          <ErrorMessage error={error} />
+        ) : isLoading ? (
+          <Spinner />
         ) : (
           <>
             {forms.length === 0 ? (
@@ -77,7 +92,11 @@ const RecentForms = observer(() => {
             ) : (
               <Box className={classes.formsList}>
                 {forms.map((form) => (
-                  <FormItem key={form.title} form={form} />
+                  <FormItem
+                    key={form.title}
+                    form={form}
+                    handleDelete={handleDelete}
+                  />
                 ))}
               </Box>
             )}
@@ -86,6 +105,6 @@ const RecentForms = observer(() => {
       </Container>
     </Box>
   );
-});
+};
 
 export default RecentForms;
