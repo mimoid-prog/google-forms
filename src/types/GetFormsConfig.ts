@@ -1,3 +1,3 @@
 export type GetFormsConfig = {
-  preview: boolean;
+  preview?: boolean;
 };

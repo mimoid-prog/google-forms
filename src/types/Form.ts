@@ -1,3 +1,4 @@
+import { Answer } from "./Answer";
 import { FormField } from "./FormField";
 
 export type Form = {
@@ -6,4 +7,5 @@ export type Form = {
   description: string;
   fields: FormField[];
   updatedAt: string;
+  answers: Answer[];
 };

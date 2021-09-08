@@ -8,6 +8,7 @@ import {
   IconButton,
   Typography,
   Avatar,
+  Button,
 } from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import TuneIcon from "@material-ui/icons/Tune";
@@ -58,6 +59,10 @@ const useStyles = makeStyles((theme) => ({
   savingText: {
     marginLeft: theme.spacing(2),
   },
+  formCompletionBtn: {
+    marginRight: theme.spacing(1),
+    textTransform: "none",
+  },
   avatar: {
     width: 30,
     height: 30,
@@ -107,6 +112,15 @@ const Navbar = observer(({ value, changeValue }: Props) => {
               ) : null}
             </Box>
 
+            <Button
+              variant="contained"
+              color="primary"
+              className={classes.formCompletionBtn}
+              component="a"
+              href={`/form/${id}/completion`}
+            >
+              Wyślij
+            </Button>
             <IconButton>
               <TuneIcon />
             </IconButton>

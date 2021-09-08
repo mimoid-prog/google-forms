@@ -47,7 +47,7 @@ const FormEditView = observer(() => {
               <Route exact path={pathname}>
                 <Form />
               </Route>
-              <Route exact path={`${pathname}/answers`}>
+              <Route path={`${pathname}/answers`}>
                 <p>Answers</p>
               </Route>
             </Switch>

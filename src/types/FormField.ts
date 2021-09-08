@@ -2,8 +2,8 @@ export type FormField = {
   id: string;
   question: string;
   order: number;
-  config: FormFieldConfig;
   schema: Schema;
+  config: FormFieldConfig;
 };
 
 export type Schema = {
@@ -68,9 +68,9 @@ export type Option = {
 export type FormFieldWithState = {
   id: string;
   question: string;
-  required: boolean;
   order: number;
-  type: FormFieldConfigWithState;
+  schema: Schema;
+  config: FormFieldConfigWithState;
 };
 
 export type FormFieldConfigWithState =
@@ -107,8 +107,9 @@ export type SingleChoiceConfigWithState = SingleChoiceConfig & {
 export type MultipleChoiceConfigWithState = MultipleChoiceConfig & {
   state: {
     value: {
-      name: string;
+      id: string;
       value: string;
+      checked: boolean;
     }[];
     error: string | null;
   };
@@ -120,3 +121,16 @@ export type LinearScaleConfigWithState = LinearScaleConfig & {
     error: string | null;
   };
 };
+
+export type ConfigWithStateValue =
+  | ShortAnswerConfigWithStateValue
+  | LongAnswerConfigWithStateValue
+  | SinlgeChoiceConfigWithStateValue
+  | MultipleChoiceConfigWithStateValue
+  | LinearScaleConfigWithStateValue;
+
+export type ShortAnswerConfigWithStateValue = string;
+export type LongAnswerConfigWithStateValue = string;
+export type SinlgeChoiceConfigWithStateValue = string;
+export type MultipleChoiceConfigWithStateValue = string[];
+export type LinearScaleConfigWithStateValue = string;

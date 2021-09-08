@@ -1,3 +1,3 @@
 import { Form } from "./Form";
 
-export type FormEditorValues = Omit<Form, "id" | "updatedAt">;
+export type FormEditorValues = Omit<Form, "id" | "updatedAt" | "answers">;

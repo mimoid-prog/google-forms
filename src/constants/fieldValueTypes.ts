@@ -1,5 +1,0 @@
-export const SHORT_ANSWER = "SHORT_ANSWER";
-export const LONG_ANSWER = "LONG_ANSWER";
-export const SINGLE_CHOICE = "SINGLE_CHOICE";
-export const MULTIPLE_CHOICE = "MULTIPLE_CHOICE";
-export const LINEAR_SCALE = "LINEAR_SCALE";
