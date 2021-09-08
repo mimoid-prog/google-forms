@@ -1,4 +1,9 @@
 import { makeStyles, Box } from "@material-ui/core";
+import { reaction } from "mobx";
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+
+import useFormCreatorStore from "src/hooks/useFormCreatorStore";
 
 import Fields from "./Fields";
 import Sidebar from "./Sidebar";
@@ -14,8 +19,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Form = () => {
+const Form = observer(() => {
   const classes = useStyles();
+
+  const { values } = useFormCreatorStore();
+
+  // useEffect(() => {
+  //   reaction(
+  //     () => ({
+  //       title: values.title,
+  //       description: values.description,
+  //       fields: values.fields.slice(),
+  //     }),
+  //     (eee) => {
+  //       console.log("REACTION!!!!", eee);
+  //     },
+  //   );
+  // }, []);
 
   return (
     <Box className={classes.root}>
@@ -28,6 +48,6 @@ const Form = () => {
       </form>
     </Box>
   );
-};
+});
 
 export default Form;

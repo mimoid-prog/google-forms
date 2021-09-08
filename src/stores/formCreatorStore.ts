@@ -4,8 +4,8 @@ import {
   computed,
   makeObservable,
   observable,
-  observe,
   reaction,
+  runInAction,
 } from "mobx";
 import { nanoid } from "nanoid";
 
@@ -40,7 +40,7 @@ export class FormCreatorStore {
   };
 
   constructor(id: string) {
-    // this.id = id;
+    this.id = id;
 
     makeObservable(this, {
       isLoading: observable,
@@ -66,21 +66,20 @@ export class FormCreatorStore {
       submitForm: action.bound,
     });
 
-    // const debouncedSubmit = debounce(() => {
-    //   this.submitForm();
-    // }, 500);
+    const debouncedSubmit = debounce(() => {
+      this.submitForm();
+    }, 750);
 
-    observe(this.values, () => {
-      console.log("Observe");
-      // debouncedSubmit();
-    });
-
-    // reaction(
-    //   () => this.values,
-    //   () => {
-    //     console.log("Reaction");
-    //   },
-    // );
+    reaction(
+      () => ({
+        title: this.values.title,
+        description: this.values.description,
+        fields: this.values.fields.slice(),
+      }),
+      () => {
+        debouncedSubmit();
+      },
+    );
   }
 
   get fieldsAmount() {
@@ -91,16 +90,20 @@ export class FormCreatorStore {
     return this.values.fields.slice().sort((a, b) => a.order - b.order);
   }
 
-  getFormValues(id: string) {
-    api.getForm(id).then((form) => {
-      if (form) {
+  async getFormValues(id: string) {
+    const form = await api.getForm(id);
+
+    if (form) {
+      runInAction(() => {
         this.values = {
           title: form.title,
           description: form.description,
           fields: form.fields,
         };
-      }
+      });
+    }
 
+    runInAction(() => {
       this.isLoading = false;
     });
   }
@@ -348,9 +351,15 @@ export class FormCreatorStore {
   }
 
   async submitForm() {
-    this.isSaving = true;
+    runInAction(() => {
+      this.isSaving = true;
+    });
+
     await formStore.saveForm(this.id, this.values);
-    this.isSaving = false;
-    this.isSaved = true;
+
+    runInAction(() => {
+      this.isSaving = false;
+      this.isSaved = true;
+    });
   }
 }
