@@ -29,8 +29,6 @@ const FormEditView = observer(() => {
 
   const [tab, setTab] = useState<TabValue>("questions");
 
-  console.log("render");
-
   const changeTab = (newTab: TabValue) => {
     setTab(newTab);
   };

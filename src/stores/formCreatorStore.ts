@@ -1,5 +1,12 @@
 import debounce from "lodash.debounce";
-import { action, computed, makeObservable, observable, observe } from "mobx";
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  observe,
+  reaction,
+} from "mobx";
 import { nanoid } from "nanoid";
 
 import * as api from "src/api";
@@ -33,7 +40,7 @@ export class FormCreatorStore {
   };
 
   constructor(id: string) {
-    this.id = id;
+    // this.id = id;
 
     makeObservable(this, {
       isLoading: observable,
@@ -59,13 +66,21 @@ export class FormCreatorStore {
       submitForm: action.bound,
     });
 
-    const debouncedSubmit = debounce(() => {
-      this.submitForm();
-    }, 500);
+    // const debouncedSubmit = debounce(() => {
+    //   this.submitForm();
+    // }, 500);
 
     observe(this.values, () => {
-      debouncedSubmit();
+      console.log("Observe");
+      // debouncedSubmit();
     });
+
+    // reaction(
+    //   () => this.values,
+    //   () => {
+    //     console.log("Reaction");
+    //   },
+    // );
   }
 
   get fieldsAmount() {

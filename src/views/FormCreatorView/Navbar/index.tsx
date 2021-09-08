@@ -76,8 +76,6 @@ const Navbar = observer(({ value, changeValue }: Props) => {
 
   const { isSaving, isSaved, isLoading } = useFormCreatorStore();
 
-  console.log("isLoading", isLoading);
-
   return (
     <Box className={classes.root}>
       <Box>
