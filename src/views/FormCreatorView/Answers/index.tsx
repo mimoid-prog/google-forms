@@ -24,7 +24,7 @@ const Answers = ({ form }: Props) => {
           odpowiedzi na na niego pojawią się tutaj.
         </Typography>
       ) : (
-        <Box>what</Box>
+        <Box>test</Box>
       )}
     </Box>
   );
