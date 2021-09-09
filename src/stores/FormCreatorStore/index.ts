@@ -10,6 +10,7 @@ import {
 } from "mobx";
 import { nanoid } from "nanoid";
 
+import * as api from "src/api";
 import { Form } from "src/types/Form";
 import {
   FormFieldConfigValue,
@@ -18,7 +19,8 @@ import {
 } from "src/types/FormField";
 import { FormValues } from "src/types/FormValues";
 
-import formStore from "./formStore";
+import formStore from "../FormStore";
+import getDefaultField from "./getDefaultField";
 
 const defaultOptions = [
   {
@@ -28,32 +30,30 @@ const defaultOptions = [
 ];
 
 export class FormCreatorStore {
+  id = "";
+
+  form: Form | null = null;
+
+  isLoading = true;
   isSaving = false;
   isSaved = false;
-
-  id = "";
 
   values: FormValues = {
     title: "Formularz bez nazwy",
     description: "",
-    fields: [],
+    fields: [getDefaultField(0)],
   };
 
-  constructor(form: Form | null) {
-    if (form) {
-      this.values = {
-        title: form.title,
-        description: form.description,
-        fields: form.fields,
-      };
-    }
+  constructor(id: string) {
+    this.id = id;
 
     makeObservable(this, {
+      form: observable,
+      values: observable,
+      isLoading: observable,
       isSaving: observable,
       isSaved: observable,
-      values: observable,
       fieldsAmount: computed,
-      sortedFields: computed,
       toggleSchemaProperty: action.bound,
       changeTitle: action.bound,
       changeDescription: action.bound,
@@ -67,6 +67,7 @@ export class FormCreatorStore {
       changeLinearScaleConfigProperty: action.bound,
       moveFieldUp: action.bound,
       moveFieldDown: action.bound,
+      getForm: action.bound,
       submitForm: action.bound,
     });
 
@@ -80,14 +81,32 @@ export class FormCreatorStore {
         debouncedSubmit();
       },
     );
+
+    this.getForm(this.id);
   }
 
   get fieldsAmount() {
     return this.values.fields.length;
   }
 
-  get sortedFields() {
-    return this.values.fields.slice().sort((a, b) => a.order - b.order);
+  async getForm(id: string) {
+    const form = await api.getForm(id);
+
+    if (form) {
+      runInAction(() => {
+        this.form = form;
+
+        this.values = {
+          title: form.title,
+          description: form.description,
+          fields: form.fields,
+        };
+      });
+    }
+
+    runInAction(() => {
+      this.isLoading = false;
+    });
   }
 
   changeTitle(newTitle: string) {
@@ -99,19 +118,7 @@ export class FormCreatorStore {
   }
 
   addField() {
-    this.values.fields.push({
-      id: nanoid(),
-      order: this.values.fields.length,
-      question: "",
-      config: {
-        value: "singleChoice",
-        options: defaultOptions,
-      },
-      schema: {
-        required: false,
-        allowOtherOption: false,
-      },
-    });
+    this.values.fields.push(getDefaultField(this.values.fields.length));
   }
 
   deleteField(fieldId: string) {
@@ -337,9 +344,13 @@ export class FormCreatorStore {
       this.isSaving = true;
     });
 
-    await formStore.saveForm(this.id, this.values);
+    const newForm = await formStore.saveForm(this.id, {
+      ...this.values,
+      fields: this.values.fields.slice().sort((a, b) => a.order - b.order),
+    });
 
     runInAction(() => {
+      this.form = newForm;
       this.isSaving = false;
       this.isSaved = true;
     });

@@ -5,6 +5,7 @@ import { Container, ErrorMessage, Spinner } from "src/components";
 import FormCompletionProvider from "src/contexts/FormCompletionContext";
 import useFormStore from "src/hooks/useFormStore";
 import { FormCompletionStore } from "src/stores/FormCompletionStore";
+import { ApiError } from "src/types/ApiError";
 import { Form as FormType } from "src/types/Form";
 
 import Form from "./Form";
@@ -25,7 +26,7 @@ const FormContainer = ({ id, showResponse }: Props) => {
   const { fetchForm } = useFormStore();
 
   const [form, setForm] = useState<FormType | null>(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<ApiError | null>(null);
 
   const formCompletionStore = useMemo(
     () => (form ? new FormCompletionStore(id, form.fields) : null),
@@ -35,7 +36,13 @@ const FormContainer = ({ id, showResponse }: Props) => {
   useEffect(() => {
     fetchForm(id)
       .then((data) => {
-        setForm(data);
+        if (data) {
+          setForm(data);
+        } else {
+          setError({
+            message: "Taki formularz nie istnieje",
+          });
+        }
       })
       .catch((err) => {
         setError(err);
@@ -47,7 +54,9 @@ const FormContainer = ({ id, showResponse }: Props) => {
   return (
     <Box className={classes.root}>
       <Container maxWidth="sm">
-        {!form || !formCompletionStore ? (
+        {error ? (
+          <ErrorMessage error={error} />
+        ) : !form || !formCompletionStore ? (
           <Spinner />
         ) : (
           <Box>

@@ -1,5 +1,6 @@
 import Container from "./Container";
 import ErrorMessage from "./ErrorMessage";
+import Field from "./Field";
 import FormButton from "./FormButton";
 import FormErrorMessage from "./FormErrorMessage";
 import FormFieldBox from "./FormFieldBox";
@@ -14,4 +15,5 @@ export {
   FormErrorMessage,
   Spinner,
   ErrorMessage,
+  Field,
 };

@@ -8,6 +8,7 @@ import {
   TextField,
 } from "@material-ui/core";
 import { useState } from "react";
+
 import { FormErrorMessage } from "src/components";
 import { Option } from "src/types/FormField";
 
@@ -29,7 +30,7 @@ export type Props = {
     } | null;
     error: string | null;
   };
-  handleAction: (value: { name: string; value: string }) => void;
+  handleAction?: (value: { name: string; value: string }) => void;
 };
 
 const FormSingleChoice = ({
@@ -39,14 +40,35 @@ const FormSingleChoice = ({
   handleAction,
 }: Props) => {
   const classes = useStyles();
-  const [otherValue, setOtherValue] = useState("");
+  const [otherValue, setOtherValue] = useState(
+    state.value && state.value.name === "other" ? state.value.value : "",
+  );
 
   const handleOtherChange = (value: string) => {
-    setOtherValue(value);
-    handleAction({
-      name: "other",
-      value,
-    });
+    if (handleAction) {
+      setOtherValue(value);
+      handleAction({
+        name: "other",
+        value,
+      });
+    }
+  };
+
+  const onCheckChange = ({ name, value }: { name: string; value: string }) => {
+    if (handleAction) {
+      handleAction({
+        name,
+        value,
+      });
+    }
+  };
+
+  const onOtherValueChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
+    if (handleAction) {
+      handleOtherChange(e.target.value);
+    }
   };
 
   return (
@@ -61,11 +83,12 @@ const FormSingleChoice = ({
                 <Radio
                   checked={state.value?.name === option.label}
                   onChange={() =>
-                    handleAction({
+                    onCheckChange({
                       name: option.label,
                       value: option.label,
                     })
                   }
+                  disabled={!handleAction}
                 />
               }
             />
@@ -78,18 +101,20 @@ const FormSingleChoice = ({
                   <Radio
                     checked={state.value?.name === "other"}
                     onChange={() =>
-                      handleAction({
+                      onCheckChange({
                         name: "other",
                         value: otherValue,
                       })
                     }
+                    disabled={!handleAction}
                   />
                 }
               />
               <TextField
                 value={otherValue}
-                onChange={(e) => handleOtherChange(e.target.value)}
+                onChange={onOtherValueChange}
                 error={state.value?.name === "other" && !!state.error}
+                disabled={!handleAction}
               />
             </Box>
           )}

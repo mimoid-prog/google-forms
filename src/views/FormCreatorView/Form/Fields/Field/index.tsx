@@ -183,7 +183,10 @@ const Field = observer(({ field }: Props) => {
           </IconButton>
 
           <Tooltip title="Usuń" placement="bottom">
-            <IconButton onClick={() => deleteField(field.id)}>
+            <IconButton
+              onClick={() => deleteField(field.id)}
+              disabled={fieldsAmount === 1}
+            >
               <DeleteOutlinedIcon />
             </IconButton>
           </Tooltip>

@@ -10,9 +10,6 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     margin: theme.spacing(1, 0),
   },
-  required: {
-    color: theme.palette.error.main,
-  },
 }));
 
 export type Props = {
@@ -31,7 +28,7 @@ const Header = ({ title, description }: Props) => {
         </Typography>
         <Typography variant="body1">{description}</Typography>
         <Divider className={classes.divider} />
-        <Typography variant="body2" className={classes.required}>
+        <Typography variant="body2" color="error">
           *Wymagane
         </Typography>
       </FormFieldBox>

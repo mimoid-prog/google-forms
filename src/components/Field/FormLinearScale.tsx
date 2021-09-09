@@ -7,6 +7,7 @@ import {
   Radio,
   Typography,
 } from "@material-ui/core";
+
 import { FormErrorMessage } from "src/components";
 import { LinearScaleConfigWithState } from "src/types/FormField";
 
@@ -31,14 +32,14 @@ const useStyles = makeStyles((theme) => ({
 
 export type Props = {
   config: LinearScaleConfigWithState;
-  onChange: (value: string) => void;
+  handleAction?: (value: string) => void;
 };
 
-const FormLinearScale = ({ config, onChange }: Props) => {
+const FormLinearScale = ({ config, handleAction }: Props) => {
   const classes = useStyles();
 
   const radios = Array.from(
-    Array(parseInt(config.maxScale) - parseInt(config.minScale) + 1)
+    Array(parseInt(config.maxScale) - parseInt(config.minScale) + 1),
   ).map((x, i) => {
     const value = (i + parseInt(config.minScale)).toString();
 
@@ -54,16 +55,26 @@ const FormLinearScale = ({ config, onChange }: Props) => {
     );
   });
 
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (handleAction) {
+      handleAction(e.target.value);
+    }
+  };
+
   return (
     <Box className={classes.root}>
       <Box className={classes.scaleBox}>
         <Typography variant="body1"> {config.minText}</Typography>
-        <FormControl component="fieldset" className={classes.formControl}>
+        <FormControl
+          component="fieldset"
+          className={classes.formControl}
+          disabled={!handleAction}
+        >
           <RadioGroup
             aria-label="gender"
             name="gender1"
             value={config.state.value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={onChange}
             className={classes.radioGroup}
             row
           >

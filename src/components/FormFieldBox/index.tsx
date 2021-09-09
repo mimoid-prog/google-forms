@@ -19,15 +19,6 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     zIndex: 2,
   },
-  activeLine: {
-    position: "absolute",
-    height: "100%",
-    width: 6,
-    backgroundColor: theme.palette.secondary.main,
-    top: 0,
-    bottom: 0,
-    left: 0,
-  },
   error: {
     border: `1px solid ${theme.palette.error.main}`,
   },
@@ -36,22 +27,15 @@ const useStyles = makeStyles((theme) => ({
 export type Props = {
   children: ReactNode;
   header?: boolean;
-  active?: boolean;
   error?: boolean;
 };
 
-const FormFieldBox = ({
-  children,
-  header = false,
-  active = false,
-  error = false,
-}: Props) => {
+const FormFieldBox = ({ children, header = false, error = false }: Props) => {
   const classes = useStyles();
 
   return (
     <Paper className={clsx(classes.root, error && classes.error)}>
       {header && <Box className={classes.headerLine} />}
-      {active && <Box className={classes.activeLine} />}
       {children}
     </Paper>
   );

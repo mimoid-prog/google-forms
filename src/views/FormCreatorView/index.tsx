@@ -1,13 +1,11 @@
 import { Box, makeStyles } from "@material-ui/core";
-import { useEffect, useState } from "react";
-import { Route, Switch, useParams } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { useState, useMemo } from "react";
+import { Route, Switch, useParams, useLocation } from "react-router-dom";
 
-import { Container, ErrorMessage, Spinner } from "src/components";
+import { Container, Spinner } from "src/components";
 import FormCreatorProvider from "src/contexts/FormCreatorContext";
-import useFormStore from "src/hooks/useFormStore";
 import { FormCreatorStore } from "src/stores/FormCreatorStore";
-import { ApiError } from "src/types/ApiError";
-import { Form as FormType } from "src/types/Form";
 
 import Answers from "./Answers";
 import Form from "./Form";
@@ -21,33 +19,20 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const FormEditView = () => {
+type Params = {
+  id: string;
+};
+
+const FormCreatorView = observer(() => {
   const classes = useStyles();
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<Params>();
+  const { pathname } = useLocation();
 
-  const { fetchForm } = useFormStore();
+  const [tab, setTab] = useState<TabValue>(
+    pathname.includes("answers") ? "answers" : "questions",
+  );
 
-  const [tab, setTab] = useState<TabValue>("questions");
-
-  const [form, setForm] = useState<FormType | null>(null);
-  const [error, setError] = useState<ApiError | null>(null);
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-
-  const [formCreatorStore, setFormCreatorStore] =
-    useState<FormCreatorStore | null>(null);
-
-  useEffect(() => {
-    fetchForm(id)
-      .then((fetchedForm) => {
-        setForm(fetchedForm);
-        setFormCreatorStore(new FormCreatorStore(fetchedForm));
-      })
-      .catch((err) => {
-        setError(err);
-      });
-  }, []);
+  const formCreatorStore = useMemo(() => new FormCreatorStore(id), []);
 
   const changeTab = (newTab: TabValue) => {
     setTab(newTab);
@@ -55,27 +40,25 @@ const FormEditView = () => {
 
   return (
     <Box className={classes.root}>
-      {error ? (
-        <ErrorMessage error={error} />
-      ) : !formCreatorStore ? (
-        <Spinner />
-      ) : (
-        <FormCreatorProvider store={formCreatorStore}>
-          <Navbar value={tab} changeValue={changeTab} />
-          <Container maxWidth="md">
+      <FormCreatorProvider store={formCreatorStore}>
+        <Navbar value={tab} changeValue={changeTab} />
+        <Container maxWidth="md">
+          {formCreatorStore.isLoading ? (
+            <Spinner />
+          ) : (
             <Switch>
               <Route exact path={`/form/${id}/creator`}>
                 <Form />
               </Route>
               <Route path={`/form/${id}/creator/answers`}>
-                <Answers form={form} />
+                <Answers />
               </Route>
             </Switch>
-          </Container>
-        </FormCreatorProvider>
-      )}
+          )}
+        </Container>
+      </FormCreatorProvider>
     </Box>
   );
-};
+});
 
-export default FormEditView;
+export default FormCreatorView;

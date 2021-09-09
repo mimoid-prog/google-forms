@@ -29,8 +29,7 @@ const Fields = observer(() => {
   const classes = useStyles();
 
   const {
-    values: { title, description },
-    sortedFields,
+    values: { title, description, fields },
     changeTitle,
     changeDescription,
   } = useFormCreatorStore();
@@ -38,7 +37,7 @@ const Fields = observer(() => {
   return (
     <Box className={classes.root}>
       <Box className={classes.fields}>
-        <FormFieldBox active header>
+        <FormFieldBox header>
           <TextField
             value={title}
             onChange={(e) => changeTitle(e.target.value)}
@@ -57,8 +56,8 @@ const Fields = observer(() => {
             className={classes.descriptionTextField}
           />
         </FormFieldBox>
-        {sortedFields.map((field) => (
-          <FormFieldBox key={field.id} active>
+        {fields.map((field) => (
+          <FormFieldBox key={field.id}>
             <Field field={field} />
           </FormFieldBox>
         ))}

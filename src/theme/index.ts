@@ -4,7 +4,6 @@ import typography from "./typography";
 
 export const theme = createTheme({
   palette: {
-    background: {},
     primary: {
       light: "#aa85ed",
       main: "#673ab7",

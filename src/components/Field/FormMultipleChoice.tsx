@@ -28,7 +28,7 @@ export type Props = {
     }[];
     error: string | null;
   };
-  handleAction: (
+  handleAction?: (
     value: { id: string; value: string },
     otherOptionValueChange?: boolean,
   ) => void;
@@ -40,6 +40,18 @@ const FormMultipleChoice = ({
   handleAction,
 }: Props) => {
   const classes = useStyles();
+
+  const onCheckChange = (value: { id: string; value: string }) => {
+    if (handleAction) {
+      handleAction(value);
+    }
+  };
+
+  const onOtherValueChange = (value: { id: string; value: string }) => {
+    if (handleAction) {
+      handleAction(value, true);
+    }
+  };
 
   return (
     <Box className={classes.root}>
@@ -55,11 +67,12 @@ const FormMultipleChoice = ({
                       <Checkbox
                         checked={option.checked}
                         onChange={() =>
-                          handleAction({
+                          onCheckChange({
                             id: "other",
                             value: option.value,
                           })
                         }
+                        disabled={!handleAction}
                       />
                     }
                     label="Inne:"
@@ -67,15 +80,12 @@ const FormMultipleChoice = ({
                   <TextField
                     value={option.value}
                     onChange={(e) =>
-                      handleAction(
-                        {
-                          id: "other",
-                          value: e.target.value,
-                        },
-                        true,
-                      )
+                      onOtherValueChange({
+                        id: "other",
+                        value: e.target.value,
+                      })
                     }
-                    error={false}
+                    disabled={!handleAction}
                   />
                 </Box>
               );
@@ -88,11 +98,12 @@ const FormMultipleChoice = ({
                       name={option.id}
                       checked={option.checked}
                       onChange={() =>
-                        handleAction({
+                        onCheckChange({
                           id: option.id,
                           value: option.value,
                         })
                       }
+                      disabled={!handleAction}
                     />
                   }
                   label={option.value}

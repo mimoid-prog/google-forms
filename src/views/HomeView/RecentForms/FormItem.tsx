@@ -126,7 +126,12 @@ const FormItem = ({ form, handleDelete }: Props) => {
               open={Boolean(anchorEl)}
               onClose={closeMenu}
             >
-              <MenuItem onClick={() => handleDelete(form.id)}>
+              <MenuItem
+                onClick={() => {
+                  closeMenu();
+                  handleDelete(form.id);
+                }}
+              >
                 <ListItemIcon>
                   <DeleteOutlinedIcon />
                 </ListItemIcon>

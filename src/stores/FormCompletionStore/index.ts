@@ -1,12 +1,10 @@
 import { action, makeObservable, observable, runInAction } from "mobx";
 
 import * as api from "src/api";
-import {
-  FormField,
-  FormFieldConfigWithState,
-  FormFieldWithState,
-} from "src/types/FormField";
+import { FormField, FormFieldWithState } from "src/types/FormField";
+import { addStateToFields } from "src/utils";
 
+import validateAllFields from "./validateAllFields";
 import validateField from "./validateField";
 
 export class FormCompletionStore {
@@ -16,67 +14,7 @@ export class FormCompletionStore {
 
   constructor(id: string, initialFields: FormField[]) {
     this.id = id;
-    this.fields = initialFields.map((field) => {
-      let config: FormFieldConfigWithState;
-
-      if (field.config.value === "shortAnswer") {
-        config = {
-          ...field.config,
-          state: {
-            value: "",
-            error: null,
-          },
-        };
-      } else if (field.config.value === "longAnswer") {
-        config = {
-          ...field.config,
-          state: {
-            value: "",
-            error: null,
-          },
-        };
-      } else if (field.config.value === "linearScale") {
-        config = {
-          ...field.config,
-          state: {
-            value: "",
-            error: null,
-          },
-        };
-      } else if (field.config.value === "singleChoice") {
-        config = {
-          ...field.config,
-          state: {
-            value: null,
-            error: null,
-          },
-        };
-      } else {
-        config = {
-          ...field.config,
-          state: {
-            value: [
-              ...field.config.options.map((option) => ({
-                id: option.id,
-                value: option.label,
-                checked: false,
-              })),
-              {
-                id: "other",
-                value: "",
-                checked: false,
-              },
-            ],
-            error: null,
-          },
-        };
-      }
-
-      return {
-        ...field,
-        config,
-      };
-    });
+    this.fields = addStateToFields(initialFields);
 
     makeObservable(this, {
       isSaving: observable,
@@ -186,10 +124,25 @@ export class FormCompletionStore {
       this.isSaving = true;
     });
 
-    await api.addAnswer(this.id, this.fields);
+    const { isError, newFields } = validateAllFields(this.fields);
 
-    runInAction(() => {
-      this.isSaving = false;
-    });
+    if (isError) {
+      runInAction(() => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        this.fields = newFields;
+        this.isSaving = false;
+      });
+
+      return { success: false };
+    } else {
+      await api.addAnswer(this.id, this.fields);
+
+      runInAction(() => {
+        this.isSaving = false;
+      });
+
+      return { success: true };
+    }
   }
 }

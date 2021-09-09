@@ -71,35 +71,32 @@ export const getForms = <T extends GetFormsConfig>(
 export const saveForm = (
   id: string,
   values: FormEditorValues,
-): Promise<void> => {
+): Promise<Form> => {
   return new Promise((resolve, reject) => {
     try {
       getForms().then((forms) => {
-        const isCreated = forms.findIndex((form) => form.id === id) !== -1;
+        const savedForm = forms.find((form) => form.id === id);
 
-        const newForms = isCreated
-          ? forms.map((form) =>
-              form.id === id
-                ? {
-                    ...form,
-                    ...values,
-                    updatedAt: new Date().toISOString(),
-                  }
-                : form,
-            )
-          : [
-              ...forms,
-              {
-                ...values,
-                id,
-                updatedAt: new Date().toISOString(),
-                answers: [],
-              },
-            ];
+        const newForm = savedForm
+          ? {
+              ...savedForm,
+              ...values,
+              updatedAt: new Date().toISOString(),
+            }
+          : {
+              ...values,
+              id,
+              updatedAt: new Date().toISOString(),
+              answers: [],
+            };
+
+        const newForms = savedForm
+          ? forms.map((form) => (form.id === id ? newForm : form))
+          : [...forms, newForm];
 
         localStorage.setItem("forms", JSON.stringify(newForms));
 
-        setTimeout(() => resolve(), FAKE_DELAY);
+        setTimeout(() => resolve(newForm), FAKE_DELAY);
       });
     } catch (error) {
       return reject({
@@ -135,10 +132,7 @@ export const addAnswer = (
         const newAnswer: Answer = {
           id: nanoid(),
           createdAt: new Date().toISOString(),
-          fields: fieldsValues.map((fieldValue) => ({
-            id: fieldValue.id,
-            value: fieldValue.config.state.value,
-          })),
+          fields: fieldsValues,
         };
 
         const newForms = forms.map((form) =>

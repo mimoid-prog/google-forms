@@ -44,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 const RecentForms = () => {
   const classes = useStyles();
   const { fetchForms, deleteForm } = useFormStore();
+
   const [forms, setForms] = useState<PreviewForm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
@@ -59,8 +60,17 @@ const RecentForms = () => {
       });
   }, []);
 
-  const handleDelete = (id: string) => {
-    deleteForm(id);
+  const handleDelete = async (id: string) => {
+    await deleteForm(id);
+
+    fetchForms({ preview: true })
+      .then((forms) => {
+        setForms(forms);
+        setIsLoading(false);
+      })
+      .catch((err: ApiError) => {
+        setError(err);
+      });
   };
 
   return (

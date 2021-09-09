@@ -1,5 +1,6 @@
 import { makeStyles, Box, TextField } from "@material-ui/core";
 import clsx from "clsx";
+
 import { FormErrorMessage } from "src/components";
 
 const useStyles = makeStyles((theme) => ({
@@ -18,12 +19,19 @@ export type Props = {
     value: string;
     error: string | null;
   };
-  onChange: (value: string) => void;
-  // onBlur: (value: string) => void;
+  handleAction?: (value: string) => void;
 };
 
-const FormText = ({ variant, state, onChange }: Props) => {
+const FormText = ({ variant, state, handleAction }: Props) => {
   const classes = useStyles();
+
+  const onAction = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
+    if (handleAction) {
+      handleAction(e.target.value);
+    }
+  };
 
   return (
     <Box className={classes.root}>
@@ -31,9 +39,10 @@ const FormText = ({ variant, state, onChange }: Props) => {
         placeholder="Twoja odpowiedź"
         className={clsx(variant === "short" ? classes.short : classes.long)}
         value={state.value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={(e) => onChange(e.target.value)}
+        onChange={onAction}
+        onBlur={onAction}
         error={!!state.error}
+        disabled={!handleAction}
       />
       {!!state.error && <FormErrorMessage />}
     </Box>

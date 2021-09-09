@@ -25,7 +25,8 @@ export class FormStore {
   }
 
   async saveForm(id: string, form: FormEditorValues) {
-    await api.saveForm(id, form);
+    const newForm = await api.saveForm(id, form);
+    return newForm;
   }
 
   async deleteForm(id: string) {
