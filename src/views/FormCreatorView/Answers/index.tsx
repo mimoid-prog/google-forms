@@ -131,7 +131,7 @@ const Answers = observer(() => {
                   </FormFieldBox>
                 </Grid>
                 {fieldsWithState.map((field) => (
-                  <Grid item xs={12} key={Math.random()}>
+                  <Grid item xs={12} key={`${page}-${field.id}`}>
                     <Field field={field} />
                   </Grid>
                 ))}
