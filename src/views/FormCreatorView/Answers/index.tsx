@@ -9,11 +9,12 @@ import {
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Field, FormFieldBox } from "src/components";
 import useFormCreatorStore from "src/hooks/useFormCreatorStore";
 import { Answer } from "src/types/Answer";
+import { Form } from "src/types/Form";
 import { FormFieldWithState } from "src/types/FormField";
 import { addStateToFields } from "src/utils";
 
@@ -53,6 +54,16 @@ const getAnswersTitle = (count: number) => {
   return title;
 };
 
+const getNewFieldsWithState = (form: Form | null, page: number) => {
+  if (form && form.answers.length > 0) {
+    const answer: Answer | undefined = form.answers[page];
+    const newFieldsWithState = addStateToFields(form.fields, answer);
+    return newFieldsWithState;
+  } else {
+    return [];
+  }
+};
+
 const Answers = observer(() => {
   const classes = useStyles();
 
@@ -60,16 +71,16 @@ const Answers = observer(() => {
 
   const [page, setPage] = useState(0);
   const [fieldsWithState, setFieldsWithState] = useState<FormFieldWithState[]>(
-    [],
+    () => getNewFieldsWithState(form, page),
   );
 
-  useEffect(() => {
+  const handlePageChange = (newPage: number) => {
     if (form && form.answers.length > 0) {
-      const answer: Answer | undefined = form.answers[page];
-      const newFieldsWithState = addStateToFields(form.fields, answer);
+      const newFieldsWithState = getNewFieldsWithState(form, newPage);
       setFieldsWithState(newFieldsWithState);
+      setPage(newPage);
     }
-  }, [page]);
+  };
 
   return (
     <Box className={classes.root}>
@@ -90,7 +101,7 @@ const Answers = observer(() => {
                 <Box className={classes.paginator}>
                   <IconButton
                     disabled={page === 0}
-                    onClick={() => setPage((state) => state - 1)}
+                    onClick={() => handlePageChange(page - 1)}
                   >
                     <ChevronLeftIcon />
                   </IconButton>
@@ -100,7 +111,7 @@ const Answers = observer(() => {
                       page === form.answers.length ||
                       page === form.answers.length - 1
                     }
-                    onClick={() => setPage((state) => state + 1)}
+                    onClick={() => handlePageChange(page + 1)}
                   >
                     <ChevronRightIcon />
                   </IconButton>
