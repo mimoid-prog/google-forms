@@ -90,13 +90,15 @@ const Sidebar = observer(() => {
           {items.map((item) => (
             <li key={item.title}>
               <Tooltip title={item.title} placement="right">
-                <IconButton
-                  size="small"
-                  onClick={item.callback}
-                  disabled={item.callback === undefined}
-                >
-                  {item.icon}
-                </IconButton>
+                <span>
+                  <IconButton
+                    size="small"
+                    onClick={item.callback}
+                    disabled={item.callback === undefined}
+                  >
+                    {item.icon}
+                  </IconButton>
+                </span>
               </Tooltip>
             </li>
           ))}

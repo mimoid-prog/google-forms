@@ -148,7 +148,6 @@ const Navbar = observer(({ value, changeValue }: Props) => {
             className={classes.tab}
             component={Link}
             to={`/form/${id}/creator/answers`}
-            disabled={!isSaved}
           />
         </Tabs>
       </Box>

@@ -1,6 +1,6 @@
 import { createContext, ReactNode } from "react";
 
-import { FormCreatorStore } from "src/stores/formCreatorStore";
+import { FormCreatorStore } from "src/stores/FormCreatorStore";
 
 export const FormCreatorContext = createContext<FormCreatorStore | undefined>(
   undefined,

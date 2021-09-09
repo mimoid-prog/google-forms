@@ -10,7 +10,7 @@ import {
 } from "mobx";
 import { nanoid } from "nanoid";
 
-import * as api from "src/api";
+import { Form } from "src/types/Form";
 import {
   FormFieldConfigValue,
   LinearScaleConfig,
@@ -28,7 +28,6 @@ const defaultOptions = [
 ];
 
 export class FormCreatorStore {
-  isLoading = true;
   isSaving = false;
   isSaved = false;
 
@@ -40,11 +39,16 @@ export class FormCreatorStore {
     fields: [],
   };
 
-  constructor(id: string) {
-    this.id = id;
+  constructor(form: Form | null) {
+    if (form) {
+      this.values = {
+        title: form.title,
+        description: form.description,
+        fields: form.fields,
+      };
+    }
 
     makeObservable(this, {
-      isLoading: observable,
       isSaving: observable,
       isSaved: observable,
       values: observable,
@@ -63,7 +67,6 @@ export class FormCreatorStore {
       changeLinearScaleConfigProperty: action.bound,
       moveFieldUp: action.bound,
       moveFieldDown: action.bound,
-      getFormValues: action.bound,
       submitForm: action.bound,
     });
 
@@ -85,24 +88,6 @@ export class FormCreatorStore {
 
   get sortedFields() {
     return this.values.fields.slice().sort((a, b) => a.order - b.order);
-  }
-
-  async getFormValues(id: string) {
-    const form = await api.getForm(id);
-
-    if (form) {
-      runInAction(() => {
-        this.values = {
-          title: form.title,
-          description: form.description,
-          fields: form.fields,
-        };
-      });
-    }
-
-    runInAction(() => {
-      this.isLoading = false;
-    });
   }
 
   changeTitle(newTitle: string) {

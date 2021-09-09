@@ -4,6 +4,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     justifyContent: "center",
+    margin: theme.spacing(2, 0),
   },
 }));
 
