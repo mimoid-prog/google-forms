@@ -14,7 +14,7 @@ import Form from "./Form";
 import Navbar from "./Navbar";
 import { TabValue } from "./types";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     backgroundColor: "#f1f3f4",
     minHeight: "100vh",
