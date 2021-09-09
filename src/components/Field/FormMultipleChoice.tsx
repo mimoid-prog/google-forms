@@ -58,8 +58,8 @@ const FormMultipleChoice = ({
       <FormControl component="fieldset">
         <FormGroup>
           {state.value.map((option) => {
-            if (option.id === "other" && allowOtherOption) {
-              return (
+            if (option.id === "other") {
+              return allowOtherOption ? (
                 <Box className={classes.otherOptionBox} key={option.id}>
                   <FormControlLabel
                     value="other"
@@ -88,7 +88,7 @@ const FormMultipleChoice = ({
                     disabled={!handleAction}
                   />
                 </Box>
-              );
+              ) : null;
             } else {
               return (
                 <FormControlLabel

@@ -73,7 +73,7 @@ export class FormCreatorStore {
 
     const debouncedSubmit = debounce(() => {
       this.submitForm();
-    }, 750);
+    }, 1000);
 
     reaction(
       () => toJS(this.values),

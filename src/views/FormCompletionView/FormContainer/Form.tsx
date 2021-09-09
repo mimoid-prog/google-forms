@@ -4,8 +4,6 @@ import { observer } from "mobx-react-lite";
 import { FormButton, Field } from "src/components";
 import useFormCompletionStore from "src/hooks/useFormCompletionStore";
 
-// import Field from "./Field";
-
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(2),
