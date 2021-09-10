@@ -29,7 +29,8 @@ const Fields = observer(() => {
   const classes = useStyles();
 
   const {
-    values: { title, description, fields },
+    sortedFields,
+    values: { title, description },
     changeTitle,
     changeDescription,
   } = useFormCreatorStore();
@@ -56,7 +57,7 @@ const Fields = observer(() => {
             className={classes.descriptionTextField}
           />
         </FormFieldBox>
-        {fields.map((field) => (
+        {sortedFields.map((field) => (
           <FormFieldBox key={field.id}>
             <Field field={field} />
           </FormFieldBox>

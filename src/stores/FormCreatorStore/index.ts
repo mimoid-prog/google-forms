@@ -54,6 +54,7 @@ export class FormCreatorStore {
       isSaving: observable,
       isSaved: observable,
       fieldsAmount: computed,
+      sortedFields: computed,
       toggleSchemaProperty: action.bound,
       changeTitle: action.bound,
       changeDescription: action.bound,
@@ -87,6 +88,10 @@ export class FormCreatorStore {
 
   get fieldsAmount() {
     return this.values.fields.length;
+  }
+
+  get sortedFields() {
+    return this.values.fields.slice().sort((a, b) => a.order - b.order);
   }
 
   async getForm(id: string) {
